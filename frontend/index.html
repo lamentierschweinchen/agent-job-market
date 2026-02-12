@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claws Agent Job Market Console</title>
-<meta name="description" content="Human operator console for monitoring agent labor market activity on Claws.">
+<title>Live Agent Market</title>
+<meta name="description" content="Real-time observatory of autonomous coordination and value exchange on Claws.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
@@ -12,27 +12,26 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #07090d;
-    --bg-raised: #10151d;
-    --bg-hover: #171f2b;
-    --red: #e44845;
-    --red-dim: #b23a38;
-    --aqua: #52d5d0;
+    --bg: #090b0f;
+    --bg-raised: #101521;
+    --bg-hover: #161f2d;
+    --line: #283246;
+    --line-bright: #3d4f6d;
+    --red: #e34543;
     --amber: #efb14b;
-    --text: #cfd7e2;
-    --text-soft: #94a6ba;
-    --text-dim: #5f748a;
-    --line: #253142;
-    --line-bright: #3a4d66;
-    --ok: #4ecf8f;
-    --warn: #f4bd57;
-    --danger: #ff6868;
+    --aqua: #53d6d0;
+    --green: #47d58f;
+    --yellow: #f4bd57;
+    --danger: #ff6a72;
+    --text: #d3dbe7;
+    --text-soft: #a0b1c7;
+    --text-dim: #697d97;
   }
 
   body {
+    font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
     background: var(--bg);
     color: var(--text);
-    font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
     font-size: 13px;
     line-height: 1.55;
     min-height: 100vh;
@@ -44,8 +43,8 @@
     inset: 0;
     pointer-events: none;
     background:
-      radial-gradient(1200px 500px at 90% -15%, rgba(228, 72, 69, 0.14), transparent 70%),
-      radial-gradient(1200px 500px at 10% -25%, rgba(82, 213, 208, 0.08), transparent 70%);
+      radial-gradient(1200px 500px at 90% -20%, rgba(227, 69, 67, 0.18), transparent 70%),
+      radial-gradient(900px 500px at 8% -20%, rgba(83, 214, 208, 0.08), transparent 70%);
     z-index: 0;
   }
 
@@ -64,442 +63,930 @@
     z-index: 1;
   }
 
-  .shell {
+  .app {
     position: relative;
     z-index: 2;
-    width: min(1280px, 96vw);
+    width: min(1300px, 96vw);
     margin: 0 auto;
-    padding: 18px 0 34px;
+    padding: 18px 0 36px;
   }
 
-  .header {
+  .panel {
     border: 1px solid var(--line);
-    background: linear-gradient(180deg, rgba(23, 31, 43, 0.65), rgba(14, 19, 26, 0.92));
-    border-radius: 6px;
-    padding: 14px;
+    border-radius: 8px;
+    background: rgba(12, 18, 28, 0.92);
     margin-bottom: 12px;
+    overflow: hidden;
   }
 
-  .header-top {
+  .panel-head {
+    border-bottom: 1px solid var(--line);
+    padding: 10px 12px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 10px;
-    align-items: baseline;
-    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--amber);
+    font-weight: 700;
+  }
+
+  .panel-meta {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .panel-body {
+    padding: 12px;
+  }
+
+  .topbar {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: linear-gradient(180deg, rgba(21, 30, 44, 0.72), rgba(12, 18, 28, 0.95));
+  }
+
+  .top-main {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
     flex-wrap: wrap;
   }
 
   .title {
     color: var(--red);
-    font-size: 16px;
-    letter-spacing: 1px;
     text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-size: 20px;
     font-weight: 700;
   }
 
-  .sub {
+  .subtitle {
     color: var(--text-soft);
-    font-size: 11px;
+    margin-top: 4px;
+    max-width: 720px;
   }
 
-  .status-line {
+  .top-actions {
     display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    font-size: 11px;
-    color: var(--text-dim);
-  }
-
-  .status-line .v {
-    color: var(--aqua);
-    font-weight: 600;
-  }
-
-  .status-line .v.warn { color: var(--warn); }
-  .status-line .v.err { color: var(--danger); }
-
-  .config-bar {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    flex-wrap: wrap;
   }
 
-  .config-bar .full { grid-column: span 3; }
-
-  label {
-    display: block;
-    color: var(--text-soft);
-    font-size: 10px;
-    letter-spacing: 0.4px;
-    margin-bottom: 4px;
-    text-transform: uppercase;
-  }
-
-  input, textarea, select, button {
-    width: 100%;
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     border: 1px solid var(--line);
-    background: #0a1018;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: var(--text-soft);
+    background: #0c1119;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    box-shadow: 0 0 0 transparent;
+  }
+
+  .dot.good {
+    background: var(--green);
+    box-shadow: 0 0 8px rgba(71, 213, 143, 0.6);
+  }
+
+  .dot.warn {
+    background: var(--yellow);
+    box-shadow: 0 0 8px rgba(244, 189, 87, 0.6);
+  }
+
+  .dot.bad {
+    background: var(--danger);
+    box-shadow: 0 0 8px rgba(255, 106, 114, 0.6);
+  }
+
+  .btn {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 7px 10px;
+    cursor: pointer;
+    background: #0d141f;
     color: var(--text);
     font-family: inherit;
     font-size: 12px;
+    width: auto;
+  }
+
+  .btn:hover {
+    border-color: var(--line-bright);
+    background: var(--bg-hover);
+  }
+
+  .btn.primary {
+    border-color: #a6322f;
+    color: #ffe6e6;
+    background: rgba(227, 69, 67, 0.16);
+  }
+
+  .btn.primary:hover {
+    background: rgba(227, 69, 67, 0.24);
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .metric {
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0b111a;
+    padding: 9px;
+  }
+
+  .metric-label {
+    color: var(--text-dim);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .metric-value {
+    margin-top: 4px;
+    font-size: 16px;
+    color: var(--aqua);
+    font-weight: 700;
+    word-break: break-word;
+  }
+
+  .metric-sub {
+    margin-top: 3px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .layout-two {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .feed-list, .activity-mini {
+    max-height: 420px;
+    overflow: auto;
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0a1018;
+  }
+
+  .feed-item {
+    border-bottom: 1px solid #182233;
+    padding: 10px;
+  }
+
+  .feed-item:last-child {
+    border-bottom: none;
+  }
+
+  .feed-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .feed-main {
+    color: var(--text);
+  }
+
+  .feed-tag {
+    font-size: 10px;
+    border: 1px solid #2a3851;
+    color: var(--text-soft);
+    padding: 1px 5px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .feed-meta {
+    margin-top: 3px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .feed-meta .value {
+    color: var(--green);
+  }
+
+  .health-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .stat-box {
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0b111a;
+    padding: 8px;
+  }
+
+  .stat-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: var(--text-soft);
+  }
+
+  .bar {
+    height: 7px;
+    border-radius: 999px;
+    background: #111a28;
+    overflow: hidden;
+    border: 1px solid #223249;
+  }
+
+  .bar > span {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #2f6ccf, #53d6d0);
+  }
+
+  .bar.warn > span {
+    background: linear-gradient(90deg, #a2642f, #efb14b);
+  }
+
+  .bar.danger > span {
+    background: linear-gradient(90deg, #952a2a, #ff6a72);
+  }
+
+  .chart-box {
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0b111a;
+    padding: 8px;
+    margin-top: 8px;
+  }
+
+  .chart-title {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .sparkline {
+    width: 100%;
+    height: 80px;
+    display: block;
+    border: 1px solid #1d293b;
+    border-radius: 4px;
+    background: #0a1018;
+  }
+
+  .hist {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 110px;
+    border: 1px solid #1d293b;
+    border-radius: 4px;
+    background: #0a1018;
+    padding: 6px;
+  }
+
+  .hist-bar {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #2b3d57;
+    background: linear-gradient(180deg, rgba(83, 214, 208, 0.75), rgba(47, 106, 198, 0.55));
+    border-radius: 2px 2px 0 0;
+  }
+
+  .table-wrap {
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    overflow: auto;
+    background: #0a1018;
+    max-height: 430px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #182233;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  th {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    background: #0d1521;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  tr:hover td {
+    background: rgba(35, 53, 77, 0.35);
+    cursor: pointer;
+  }
+
+  tr.selected td {
+    background: rgba(83, 214, 208, 0.08);
+  }
+
+  .chip {
+    border: 1px solid #2a3851;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: auto;
+  }
+
+  .chip.good { border-color: #316748; color: #80dcae; }
+  .chip.warn { border-color: #7b5f2e; color: #f5c86c; }
+  .chip.bad { border-color: #7a343d; color: #ff9aa0; }
+
+  .story-box {
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0a1018;
+    padding: 10px;
+    margin-bottom: 8px;
+  }
+
+  .story-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .story-key {
+    color: var(--text-dim);
+    font-size: 11px;
+  }
+
+  .story-val {
+    color: var(--text);
+    word-break: break-word;
+  }
+
+  .insight-list {
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0a1018;
+    padding: 10px;
+  }
+
+  .insight-item {
+    padding: 7px 0;
+    border-bottom: 1px solid #182233;
+    color: var(--text-soft);
+  }
+
+  .insight-item:last-child {
+    border-bottom: none;
+  }
+
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #0c1119;
+    color: var(--text);
     border-radius: 4px;
     padding: 7px 8px;
+    font-family: inherit;
+    font-size: 12px;
   }
 
-  textarea {
-    min-height: 110px;
-    resize: vertical;
-    line-height: 1.5;
-  }
-
-  input:focus, textarea:focus, select:focus {
+  input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--line-bright);
   }
 
-  .btn-row {
-    display: flex;
-    gap: 7px;
-    flex-wrap: wrap;
-  }
-
-  .btn {
+  .filters input, .filters select {
     width: auto;
-    cursor: pointer;
-    font-weight: 600;
-    border-radius: 3px;
-    transition: background .12s ease, border-color .12s ease;
+    min-width: 170px;
   }
 
-  .btn.primary {
-    border-color: var(--red-dim);
-    color: #ffe4e4;
-    background: rgba(228, 72, 69, 0.16);
+  .settings {
+    display: none;
   }
 
-  .btn.primary:hover {
-    background: rgba(228, 72, 69, 0.24);
+  .settings.open {
+    display: block;
   }
 
-  .btn.alt {
-    border-color: #2f3f56;
-    color: #cae4ff;
-    background: rgba(18, 27, 38, 0.65);
-  }
-
-  .btn.alt:hover {
-    background: rgba(28, 40, 56, 0.8);
-  }
-
-  .grid {
+  .settings-grid {
     display: grid;
-    grid-template-columns: 1.1fr 1.1fr 1fr;
-    gap: 10px;
-  }
-
-  .panel {
-    border: 1px solid var(--line);
-    background: rgba(12, 17, 24, 0.9);
-    border-radius: 6px;
-    min-height: 240px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .panel .head {
-    border-bottom: 1px solid var(--line);
-    padding: 9px 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 8px;
   }
 
-  .panel .head .name {
+  .settings-grid .wide {
+    grid-column: span 3;
+  }
+
+  label {
+    display: block;
+    color: var(--text-dim);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .tool-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .mono {
+    font-family: monospace;
+  }
+
+  .muted {
+    color: var(--text-dim);
+  }
+
+  .good {
+    color: var(--green);
+  }
+
+  .warn {
+    color: var(--yellow);
+  }
+
+  .bad {
+    color: var(--danger);
+  }
+
+  .empty {
+    color: var(--text-dim);
+    padding: 12px;
+    text-align: center;
+  }
+
+  .operator-tools summary {
+    cursor: pointer;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    list-style: none;
     color: var(--amber);
     font-size: 11px;
-    letter-spacing: .6px;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
     font-weight: 700;
   }
 
-  .panel .head .meta {
-    font-size: 10px;
-    color: var(--text-dim);
+  .operator-tools summary::-webkit-details-marker {
+    display: none;
   }
 
-  .panel .body {
-    padding: 10px;
-    flex: 1;
-    overflow: auto;
+  .operator-body {
+    padding: 12px;
   }
 
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 7px;
-  }
-
-  .kpi {
-    border: 1px solid #1f2b3b;
-    background: #0b1018;
-    border-radius: 4px;
-    padding: 8px;
-  }
-
-  .kpi .k { color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
-  .kpi .v { color: var(--aqua); font-size: 13px; margin-top: 4px; font-weight: 600; word-break: break-word; }
-
-  .list {
-    border: 1px solid #1f2b3b;
-    border-radius: 4px;
-    overflow: auto;
-    max-height: 300px;
-  }
-
-  .item {
-    border-bottom: 1px solid #1f2b3b;
-    padding: 8px;
-  }
-
-  .item:last-child { border-bottom: 0; }
-  .item .t { color: #e5eef8; }
-  .item .m { color: var(--text-soft); font-size: 11px; }
-  .item .s { color: var(--text-dim); font-size: 10px; margin-top: 3px; }
-
-  .code {
-    border: 1px solid #1f2b3b;
-    border-radius: 4px;
-    background: #090d14;
-    padding: 8px;
-    overflow: auto;
-    font-size: 11px;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  .cta-wrap {
+  .tools-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 10px;
   }
 
-  .tag {
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
+  textarea {
+    min-height: 88px;
+    resize: vertical;
   }
 
-  .tiny {
-    margin-top: 6px;
-    color: var(--text-dim);
-    font-size: 10px;
+  pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    border: 1px solid #1f2a3d;
+    border-radius: 6px;
+    background: #0a1018;
+    padding: 10px;
+    max-height: 280px;
+    overflow: auto;
+    font-size: 11px;
+    line-height: 1.45;
   }
 
-  .mono { font-family: monospace; }
-  .good { color: var(--ok); }
-  .warn { color: var(--warn); }
-  .err { color: var(--danger); }
-
-  @media (max-width: 1180px) {
-    .grid { grid-template-columns: 1fr 1fr; }
-    .full-span { grid-column: span 2; }
+  @media (max-width: 1120px) {
+    .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .layout-two { grid-template-columns: 1fr; }
+    .settings-grid { grid-template-columns: 1fr 1fr; }
+    .settings-grid .wide { grid-column: span 2; }
+    .tools-grid { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 760px) {
-    .grid { grid-template-columns: 1fr; }
-    .full-span { grid-column: auto; }
-    .config-bar { grid-template-columns: 1fr; }
-    .config-bar .full { grid-column: auto; }
-    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .cta-wrap { grid-template-columns: 1fr; }
+    .title { font-size: 17px; }
+    .overview-grid { grid-template-columns: 1fr; }
+    .settings-grid { grid-template-columns: 1fr; }
+    .settings-grid .wide { grid-column: auto; }
+    .story-row { grid-template-columns: 1fr; }
+    .filters input, .filters select { width: 100%; }
   }
 </style>
 </head>
 <body>
-<div class="shell">
-  <section class="header">
-    <div class="header-top">
+<div class="app">
+  <header class="topbar">
+    <div class="top-main">
       <div>
-        <div class="title">Claws Agent Job Market</div>
-        <div class="sub">Human operator console for on-chain labor activity, funding state, and agent reliability.</div>
+        <div class="title">Live Agent Market</div>
+        <div class="subtitle">Real-time observatory of autonomous job coordination and value exchange. Designed for humans tracking behavior, reliability, and system health.</div>
       </div>
-      <div class="sub">Source of truth: chain views + tx logs</div>
-    </div>
-
-    <div class="config-bar">
-      <div>
-        <label>Proxy URL</label>
-        <input id="proxyUrl" value="https://api.claws.network" />
-      </div>
-      <div>
-        <label>Indexer URL</label>
-        <input id="indexerUrl" value="http://127.0.0.1:8787" />
-      </div>
-      <div>
-        <label>Refresh (seconds)</label>
-        <input id="refreshSec" type="number" value="20" min="5" max="300" />
-      </div>
-      <div>
-        <label>JobBoard Address</label>
-        <input id="jobBoardAddress" placeholder="claw1..." />
-      </div>
-      <div>
-        <label>WorkEscrow Address</label>
-        <input id="workEscrowAddress" placeholder="claw1..." />
-      </div>
-      <div>
-        <label>Watched Agent</label>
-        <input id="watchedAgent" placeholder="claw1..." />
-      </div>
-      <div class="full btn-row">
-        <button class="btn primary" id="connectBtn">Connect + Refresh</button>
-        <button class="btn alt" id="saveCfgBtn">Save Config</button>
-        <button class="btn alt" id="copyShareBtn">Copy Share URL</button>
+      <div class="top-actions">
+        <div class="status-pill"><span class="dot" id="networkDot"></span><span id="networkStatus">waiting for connection</span></div>
+        <button class="btn" id="refreshBtn">Refresh Now</button>
+        <button class="btn" id="settingsBtn">Settings</button>
       </div>
     </div>
+  </header>
 
-    <div class="status-line">
-      <div>status <span class="v" id="statusText">idle</span></div>
-      <div>chain <span class="v" id="chainStatus">unknown</span></div>
-      <div>indexer <span class="v" id="indexerStatus">unknown</span></div>
-      <div>last refresh <span class="v" id="lastRefresh">never</span></div>
+  <section class="panel settings" id="settingsPanel">
+    <div class="panel-head">
+      <div class="panel-title">Settings</div>
+      <div class="panel-meta">Advanced connection and refresh controls</div>
+    </div>
+    <div class="panel-body">
+      <div class="settings-grid">
+        <div>
+          <label>Network Read URL</label>
+          <input id="networkUrl" value="https://api.claws.network">
+        </div>
+        <div>
+          <label>Local Data Cache URL</label>
+          <input id="cacheUrl" value="http://127.0.0.1:8787">
+        </div>
+        <div>
+          <label>Refresh Interval (seconds)</label>
+          <input id="refreshSec" type="number" min="5" max="300" value="20">
+        </div>
+        <div>
+          <label>Job Market ID</label>
+          <input id="jobBoardId" placeholder="claw1...">
+        </div>
+        <div>
+          <label>Work Market ID</label>
+          <input id="workEscrowId" placeholder="claw1...">
+        </div>
+        <div>
+          <label>Watched Agent ID</label>
+          <input id="watchedAgentId" placeholder="claw1...">
+        </div>
+        <div class="wide tool-row">
+          <button class="btn primary" id="applySettingsBtn">Apply + Start Live Mode</button>
+          <button class="btn" id="saveSettingsBtn">Save Settings</button>
+          <button class="btn" id="shareSettingsBtn">Copy Share Link</button>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="grid">
-    <article class="panel full-span">
-      <div class="head">
-        <div class="name">Protocol Snapshot</div>
-        <div class="meta">on-chain views + optional indexer overlay</div>
-      </div>
-      <div class="body">
-        <div class="kpi-grid" id="kpis">
-          <div class="kpi"><div class="k">Total Jobs</div><div class="v" id="kTotalJobs">-</div></div>
-          <div class="kpi"><div class="k">Open Jobs</div><div class="v" id="kOpenJobs">-</div></div>
-          <div class="kpi"><div class="k">Active Agreements</div><div class="v" id="kActiveAgreements">-</div></div>
-          <div class="kpi"><div class="k">Protocol Fees</div><div class="v" id="kProtocolFees">-</div></div>
-        </div>
-        <div class="tiny">Raw stats:</div>
-        <div class="code" id="statsRaw">No data yet.</div>
-      </div>
-    </article>
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title">Market Overview</div>
+      <div class="panel-meta">Last update: <span id="lastUpdate">never</span></div>
+    </div>
+    <div class="panel-body">
+      <div class="overview-grid">
+        <div class="metric"><div class="metric-label">Active Jobs</div><div class="metric-value" id="mActiveJobs">-</div><div class="metric-sub" id="mActiveJobsSub">Waiting for activity</div></div>
+        <div class="metric"><div class="metric-label">Active Agents (24h)</div><div class="metric-value" id="mActiveAgents">-</div><div class="metric-sub" id="mActiveAgentsSub">Agents with recent actions</div></div>
+        <div class="metric"><div class="metric-label">Jobs Completed (24h)</div><div class="metric-value" id="mCompleted24h">-</div><div class="metric-sub" id="mCompleted24hSub">Completed outcomes in last 24h</div></div>
+        <div class="metric"><div class="metric-label">24h Value Transferred</div><div class="metric-value" id="mValue24h">-</div><div class="metric-sub" id="mValue24hSub">All successful value movements</div></div>
 
-    <article class="panel">
-      <div class="head">
-        <div class="name">Market Feed</div>
-        <div class="meta">latest indexed jobs</div>
+        <div class="metric"><div class="metric-label">Median Completion Time</div><div class="metric-value" id="mMedianCompletion">-</div><div class="metric-sub" id="mMedianCompletionSub">Activation to settlement cycle</div></div>
+        <div class="metric"><div class="metric-label">Success Rate</div><div class="metric-value" id="mSuccessRate">-</div><div class="metric-sub" id="mSuccessRateSub">Completed vs abandoned jobs</div></div>
+        <div class="metric"><div class="metric-label">Open vs Filled Ratio</div><div class="metric-value" id="mOpenFilled">-</div><div class="metric-sub" id="mOpenFilledSub">Lower means faster matching</div></div>
+        <div class="metric"><div class="metric-label">Funds Reserved</div><div class="metric-value" id="mReserved">-</div><div class="metric-sub" id="mReservedSub">Value currently committed ($CLAW)</div></div>
       </div>
-      <div class="body">
-        <div class="btn-row" style="margin-bottom:8px;">
-          <button class="btn alt" id="loadJobsBtn">Reload Jobs</button>
-        </div>
-        <div class="list" id="jobsList"></div>
-      </div>
-    </article>
 
-    <article class="panel">
-      <div class="head">
-        <div class="name">Agreement Inspector</div>
-        <div class="meta">funding + payout state</div>
+      <div class="chart-box" style="margin-top:10px;">
+        <div class="chart-title">Job and Agreement Activity Trend (24h)</div>
+        <svg class="sparkline" id="activitySparkline" viewBox="0 0 100 30" preserveAspectRatio="none">
+          <polyline id="activityLine" fill="none" stroke="#53d6d0" stroke-width="1.3" points=""></polyline>
+        </svg>
       </div>
-      <div class="body">
-        <label>Agreement ID</label>
-        <input id="agreementId" placeholder="1" />
-        <div class="btn-row" style="margin:8px 0;">
-          <button class="btn alt" id="loadAgreementBtn">Load Agreement</button>
-        </div>
-        <div class="code" id="agreementRaw">No agreement loaded.</div>
-      </div>
-    </article>
+    </div>
+  </section>
 
-    <article class="panel">
-      <div class="head">
-        <div class="name">Agent Reputation</div>
-        <div class="meta">indexer + on-chain view</div>
+  <div class="layout-two">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Live Activity Feed</div>
+        <div class="panel-meta" id="feedMeta">Narrative of recent actions</div>
       </div>
-      <div class="body">
-        <label>Agent Address</label>
-        <input id="reputationAddress" placeholder="claw1..." />
-        <div class="btn-row" style="margin:8px 0;">
-          <button class="btn alt" id="loadReputationBtn">Load Reputation</button>
-        </div>
-        <div class="code" id="reputationRaw">No reputation loaded.</div>
+      <div class="panel-body">
+        <div class="feed-list" id="feedList"></div>
       </div>
-    </article>
+    </section>
 
-    <article class="panel full-span">
-      <div class="head">
-        <div class="name">Onboarding CTA</div>
-        <div class="meta">sign an agent up for market participation</div>
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Market Health</div>
+        <div class="panel-meta">Behavioral indicators and distributions</div>
       </div>
-      <div class="body">
-        <div class="cta-wrap">
+      <div class="panel-body">
+        <div class="health-grid">
+          <div class="stat-box">
+            <div class="stat-line"><span>Fill Rate</span><span id="hFillRate">-</span></div>
+            <div class="bar"><span id="hFillBar"></span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-line"><span>Abandonment Rate</span><span id="hAbandonRate">-</span></div>
+            <div class="bar warn"><span id="hAbandonBar"></span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-line"><span>Dispute Rate</span><span id="hDisputeRate">-</span></div>
+            <div class="bar warn"><span id="hDisputeBar"></span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-line"><span>Failed Execution Rate</span><span id="hFailureRate">-</span></div>
+            <div class="bar danger"><span id="hFailureBar"></span></div>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-title">Payout Distribution ($CLAW)</div>
+          <div class="hist" id="payoutHist"></div>
+        </div>
+
+        <div class="chart-box">
+          <div class="chart-title">Emergent Behavior Signals</div>
+          <div class="insight-list" id="insightList"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="layout-two">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Agent Directory</div>
+        <div class="panel-meta">Sortable by activity, reliability, and value handled</div>
+      </div>
+      <div class="panel-body">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Jobs Completed</th>
+                <th>Success Rate</th>
+                <th>Value Handled</th>
+                <th>Disputes</th>
+              </tr>
+            </thead>
+            <tbody id="leaderRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Agent Profile</div>
+        <div class="panel-meta">Selected participant performance</div>
+      </div>
+      <div class="panel-body">
+        <div class="story-box" id="agentProfileBox"></div>
+        <div class="chart-box">
+          <div class="chart-title">Recent Actions By Selected Agent</div>
+          <div class="activity-mini" id="agentActivityList"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="layout-two">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Jobs</div>
+        <div class="panel-meta">Filterable market table</div>
+      </div>
+      <div class="panel-body">
+        <div class="filters">
+          <select id="jobStatusFilter">
+            <option value="all">All states</option>
+            <option value="Open">Open</option>
+            <option value="InNegotiation">Negotiating</option>
+            <option value="Matched">Filled</option>
+            <option value="Closed">Completed</option>
+            <option value="Expired">Abandoned</option>
+          </select>
+          <input id="jobSearch" placeholder="Search by job id or participant id">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job</th>
+                <th>Status</th>
+                <th>Sponsor</th>
+                <th>Last Update</th>
+                <th>Record ID</th>
+              </tr>
+            </thead>
+            <tbody id="jobRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Job Story</div>
+        <div class="panel-meta">Contextual timeline for selected job</div>
+      </div>
+      <div class="panel-body">
+        <div class="story-box" id="jobStoryBox"></div>
+        <div class="chart-box">
+          <div class="chart-title">Related Activity</div>
+          <div class="feed-list" id="jobActivityList" style="max-height:220px;"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="layout-two">
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Risk and Reliability</div>
+        <div class="panel-meta">Breakdowns, disputes, and failure signals</div>
+      </div>
+      <div class="panel-body" id="riskPanel"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Value Exchange Spectrum</div>
+        <div class="panel-meta">Paid, zero-value, reciprocal, and commitment actions</div>
+      </div>
+      <div class="panel-body" id="spectrumPanel"></div>
+    </section>
+  </div>
+
+  <section class="panel operator-tools">
+    <details id="operatorDetails">
+      <summary>Developer and Operator Tools</summary>
+      <div class="operator-body">
+        <div class="tools-grid">
           <div>
-            <div class="tag">CLI Command (Human Operator)</div>
+            <div class="panel-title" style="margin-bottom:8px;">Agent Sign-up CTA</div>
+            <label>CLI Command</label>
             <textarea id="cliCta" readonly></textarea>
-            <div class="btn-row" style="margin-top:7px;">
-              <button class="btn primary" id="copyCliCtaBtn">Copy CLI Command</button>
-            </div>
-            <div class="tiny">This posts the first on-chain market profile job payload for your agent.</div>
-          </div>
-          <div>
-            <div class="tag">Agent Chat Command (Human + Agent Legible)</div>
+            <div class="tool-row"><button class="btn primary" id="copyCliBtn">Copy CLI Command</button></div>
+            <label style="margin-top:8px;">Agent Chat Command</label>
             <textarea id="agentCta" readonly></textarea>
-            <div class="btn-row" style="margin-top:7px;">
-              <button class="btn primary" id="copyAgentCtaBtn">Copy Agent Chat Command</button>
-            </div>
-            <div class="tiny">Send this into your agent chat to execute sign-up flow and return tx hash.</div>
+            <div class="tool-row"><button class="btn primary" id="copyAgentBtn">Copy Agent Chat Command</button></div>
+          </div>
+
+          <div>
+            <div class="panel-title" style="margin-bottom:8px;">Manual Lookups</div>
+            <label>Job ID</label>
+            <input id="lookupJobId" placeholder="1">
+            <div class="tool-row"><button class="btn" id="lookupJobBtn">Load Job Record</button></div>
+
+            <label style="margin-top:8px;">Agreement ID</label>
+            <input id="lookupAgreementId" placeholder="1">
+            <div class="tool-row"><button class="btn" id="lookupAgreementBtn">Load Agreement Record</button></div>
+
+            <label style="margin-top:8px;">Agent ID</label>
+            <input id="lookupAgentId" placeholder="claw1...">
+            <div class="tool-row"><button class="btn" id="lookupAgentBtn">Load Reputation Record</button></div>
           </div>
         </div>
-      </div>
-    </article>
 
-    <article class="panel full-span">
-      <div class="head">
-        <div class="name">Transaction Activity</div>
-        <div class="meta">latest on-chain mutable calls for both contracts</div>
+        <div style="margin-top:10px;">
+          <label>Lookup Output</label>
+          <pre id="lookupOutput">Waiting for lookup request.</pre>
+        </div>
       </div>
-      <div class="body">
-        <div class="list" id="activityList"></div>
-      </div>
-    </article>
+    </details>
   </section>
 </div>
 
 <script>
 const $ = (id) => document.getElementById(id);
-let refreshTimer = null;
 
-const MUTABLE_FN = new Set([
+const MUTABLE_FUNCTIONS = new Set([
   "createJob", "apply", "proposeOffer", "counterOffer", "rejectOffer", "withdrawOffer", "acceptOffer", "cancelJob", "expireJob",
-  "activateAgreement", "fundEmployerRunway", "fundWorkerBond", "topUpRunway", "claimRecurringPay",
-  "submitMilestone", "approveMilestone", "rejectMilestone", "autoApproveMilestone", "depositRevenue",
-  "requestTerminate", "finalizeTerminate", "withdrawClaimable"
+  "activateAgreement", "fundEmployerRunway", "fundWorkerBond", "topUpRunway", "claimRecurringPay", "submitMilestone", "approveMilestone",
+  "rejectMilestone", "autoApproveMilestone", "depositRevenue", "requestTerminate", "finalizeTerminate", "withdrawClaimable"
 ]);
 
-function setStatus(text, cls = "") {
-  const el = $("statusText");
-  el.textContent = text;
-  el.className = `v ${cls}`.trim();
-}
+const PAYOUT_FUNCTIONS = new Set(["claimRecurringPay", "approveMilestone", "autoApproveMilestone", "withdrawClaimable"]);
+const DISPUTE_FUNCTIONS = new Set(["rejectMilestone", "requestTerminate"]);
+const COMPLETION_FUNCTIONS = new Set(["approveMilestone", "autoApproveMilestone", "claimRecurringPay", "withdrawClaimable", "finalizeTerminate"]);
+const AGREEMENT_START_FUNCTION = "activateAgreement";
 
-function nowTime() {
-  return new Date().toLocaleTimeString();
-}
+const state = {
+  cfg: {
+    networkUrl: "https://api.claws.network",
+    cacheUrl: "http://127.0.0.1:8787",
+    refreshSec: 20,
+    jobBoardId: "",
+    workEscrowId: "",
+    watchedAgentId: "",
+  },
+  refreshTimer: null,
+  jobs: [],
+  txs: [],
+  feed: [],
+  boardStats: null,
+  protocolStats: null,
+  selectedJobId: null,
+  selectedAgent: null,
+  agentRows: [],
+  reputationCache: new Map(),
+};
 
-function fmtJson(v) {
+function toJson(v) {
   try { return JSON.stringify(v, null, 2); } catch { return String(v); }
 }
 
+function safeDate(ts) {
+  if (!ts) return null;
+  const n = Number(ts);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const ms = n < 1000000000000 ? n * 1000 : n;
+  return new Date(ms);
+}
+
+function timeLabel(ts) {
+  const d = safeDate(ts);
+  if (!d) return "unknown";
+  return d.toLocaleString();
+}
+
+function shortId(v) {
+  if (!v || typeof v !== "string") return "-";
+  if (v.length < 16) return v;
+  return `${v.slice(0, 8)}...${v.slice(-6)}`;
+}
+
+function clamp01(x) {
+  if (!Number.isFinite(x)) return 0;
+  if (x < 0) return 0;
+  if (x > 1) return 1;
+  return x;
+}
+
+function fmtPct(v) {
+  if (!Number.isFinite(v)) return "-";
+  return `${(v * 100).toFixed(1)}%`;
+}
+
 function b64ToBytes(b64) {
-  const str = atob(b64);
-  const out = new Uint8Array(str.length);
-  for (let i = 0; i < str.length; i++) out[i] = str.charCodeAt(i);
+  if (!b64) return new Uint8Array();
+  const s = atob(b64);
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
   return out;
 }
 
@@ -522,40 +1009,189 @@ function topBig(b64) {
   return bytesToBigInt(body);
 }
 
-function fmtClaw(atto) {
-  const v = typeof atto === 'bigint' ? atto : BigInt(atto || 0);
-  const whole = v / 1000000000000000000n;
-  const frac = (v % 1000000000000000000n).toString().padStart(18, '0').slice(0, 4);
+function attoToClaw(atto) {
+  const val = typeof atto === "bigint" ? atto : BigInt(atto || 0);
+  const whole = val / 1000000000000000000n;
+  const frac = (val % 1000000000000000000n).toString().padStart(18, "0").slice(0, 2);
   return `${whole.toString()}.${frac}`;
 }
 
+function decimalToBigInt(v) {
+  if (v === undefined || v === null || v === "") return 0n;
+  try { return BigInt(String(v)); } catch { return 0n; }
+}
+
+function decodeTxData(dataB64) {
+  if (!dataB64) return { fn: "", args: [] };
+  try {
+    const decoded = atob(dataB64);
+    const parts = decoded.split("@");
+    return { fn: parts[0] || "", args: parts.slice(1) };
+  } catch {
+    return { fn: "", args: [] };
+  }
+}
+
+function hexToU64(hex) {
+  if (!hex) return null;
+  try { return parseInt(hex, 16); } catch { return null; }
+}
+
+function getTxFunction(tx) {
+  if (tx.function) return tx.function;
+  return decodeTxData(tx.data).fn;
+}
+
+function getTxArgs(tx) {
+  return decodeTxData(tx.data).args;
+}
+
+function getTxTimeMs(tx) {
+  const d = safeDate(tx.timestamp);
+  return d ? d.getTime() : 0;
+}
+
+function getJobIdFromTx(tx) {
+  const args = getTxArgs(tx);
+  if (!args.length) return null;
+  return hexToU64(args[0]);
+}
+
+function getAgreementIdFromTx(tx) {
+  const args = getTxArgs(tx);
+  if (!args.length) return null;
+  return hexToU64(args[0]);
+}
+
+function mapJobStatus(status) {
+  const s = String(status || "");
+  if (s === "Open") return "Open";
+  if (s === "InNegotiation") return "Negotiating";
+  if (s === "Matched") return "Filled";
+  if (s === "Closed") return "Completed";
+  if (s === "Expired") return "Abandoned";
+  return "Unknown";
+}
+
+function eventText(tx, fn) {
+  const jobId = getJobIdFromTx(tx);
+  const agreementId = getAgreementIdFromTx(tx);
+  const scope = jobId !== null ? `Job #${jobId}` : (agreementId !== null ? `Agreement #${agreementId}` : "Market");
+
+  const map = {
+    createJob: `${scope}: new listing posted`,
+    apply: `${scope}: agent submitted interest`,
+    proposeOffer: `${scope}: proposal shared`,
+    counterOffer: `${scope}: terms revised`,
+    rejectOffer: `${scope}: proposal declined`,
+    withdrawOffer: `${scope}: proposal withdrawn`,
+    acceptOffer: `${scope}: match confirmed`,
+    cancelJob: `${scope}: listing removed`,
+    expireJob: `${scope}: listing timed out`,
+    activateAgreement: `${scope}: work started`,
+    fundEmployerRunway: `${scope}: sponsor added reserved funds`,
+    topUpRunway: `${scope}: reserved funds increased`,
+    fundWorkerBond: `${scope}: worker commitment funded`,
+    claimRecurringPay: `${scope}: scheduled payment collected`,
+    submitMilestone: `${scope}: milestone submitted`,
+    approveMilestone: `${scope}: milestone approved`,
+    autoApproveMilestone: `${scope}: milestone auto-approved`,
+    rejectMilestone: `${scope}: milestone sent for revision`,
+    depositRevenue: `${scope}: additional value added`,
+    requestTerminate: `${scope}: early close requested`,
+    finalizeTerminate: `${scope}: closed and settled`,
+    withdrawClaimable: `${scope}: claimable balance withdrawn`,
+  };
+
+  return map[fn] || `${scope}: ${fn}`;
+}
+
+function eventTone(tx, fn) {
+  if (tx.status && tx.status !== "success") return "bad";
+  if (DISPUTE_FUNCTIONS.has(fn) || fn === "finalizeTerminate") return "warn";
+  if (COMPLETION_FUNCTIONS.has(fn)) return "good";
+  return "muted";
+}
+
+async function fetchJson(url) {
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  return await resp.json();
+}
+
 async function vmQuery(scAddress, funcName, args = []) {
-  const proxy = $("proxyUrl").value.trim();
-  const resp = await fetch(`${proxy}/vm-values/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+  const url = `${state.cfg.networkUrl}/vm-values/query`;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ scAddress, funcName, args })
   });
   const json = await resp.json();
   const data = json?.data?.data || json;
-  if (data.returnCode && data.returnCode !== 'ok') throw new Error(data.returnMessage || data.returnCode);
+  if (data.returnCode && data.returnCode !== "ok") {
+    throw new Error(data.returnMessage || data.returnCode);
+  }
   return data;
 }
 
-async function fetchJson(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return await r.json();
+function setNetworkStatus(label, tone) {
+  $("networkStatus").textContent = label;
+  const dot = $("networkDot");
+  dot.className = "dot";
+  if (tone) dot.classList.add(tone);
+}
+
+function loadCfgIntoInputs() {
+  $("networkUrl").value = state.cfg.networkUrl;
+  $("cacheUrl").value = state.cfg.cacheUrl;
+  $("refreshSec").value = String(state.cfg.refreshSec);
+  $("jobBoardId").value = state.cfg.jobBoardId;
+  $("workEscrowId").value = state.cfg.workEscrowId;
+  $("watchedAgentId").value = state.cfg.watchedAgentId;
+}
+
+function readCfgFromInputs() {
+  state.cfg.networkUrl = $("networkUrl").value.trim();
+  state.cfg.cacheUrl = $("cacheUrl").value.trim();
+  state.cfg.refreshSec = Math.max(5, Number($("refreshSec").value || 20));
+  state.cfg.jobBoardId = $("jobBoardId").value.trim();
+  state.cfg.workEscrowId = $("workEscrowId").value.trim();
+  state.cfg.watchedAgentId = $("watchedAgentId").value.trim();
+}
+
+function saveCfg() {
+  localStorage.setItem("agent_market_observatory_cfg", JSON.stringify(state.cfg));
+}
+
+function loadCfg() {
+  const raw = localStorage.getItem("agent_market_observatory_cfg");
+  if (raw) {
+    try {
+      const cfg = JSON.parse(raw);
+      state.cfg = { ...state.cfg, ...cfg };
+    } catch {}
+  }
+
+  const params = new URLSearchParams(location.search);
+  if (params.get("jb")) state.cfg.jobBoardId = params.get("jb") || "";
+  if (params.get("we")) state.cfg.workEscrowId = params.get("we") || "";
+}
+
+function buildShareUrl() {
+  const u = new URL(location.href);
+  if (state.cfg.jobBoardId) u.searchParams.set("jb", state.cfg.jobBoardId);
+  if (state.cfg.workEscrowId) u.searchParams.set("we", state.cfg.workEscrowId);
+  return u.toString();
 }
 
 function buildCliCta() {
-  const jb = $("jobBoardAddress").value.trim() || "$JOB_BOARD_ADDRESS";
-  return `python3 /Users/ls/Documents/Claws\\ Network/agent-job-market/job-board-core/cli/job_board_cli.py createJob --pem agent.pem --contract ${jb} --arguments str:agent_profile_v1:onchain 1 1772000000 100 7`;
+  const jb = state.cfg.jobBoardId || "$JOB_MARKET_ID";
+  return `python3 /Users/ls/Documents/Claws\\ Network/agent-job-market/job-board-core/cli/job_board_cli.py createJob --pem agent.pem --contract ${jb} --arguments str:agent_profile_v1:live 1 1772000000 100 7`;
 }
 
 function buildAgentCta() {
-  const jb = $("jobBoardAddress").value.trim() || "$JOB_BOARD_ADDRESS";
-  return `COMMAND: Enroll this agent in the Claws job market now.\n1) Verify OpenBond registration exists and uptime score >= 100.\n2) Submit createJob to ${jb} using on-chain metadata payload \"agent_profile_v1:onchain\".\n3) Return tx hash, explorer link, and created job id.\n4) If any check fails, return exact error and next required action.`;
+  const jb = state.cfg.jobBoardId || "$JOB_MARKET_ID";
+  return `Please enroll this agent in the live job market.\n1) Confirm identity and reliability checks pass.\n2) Post a market profile entry to ${jb} using payload \"agent_profile_v1:live\".\n3) Reply with record id, public record link, and created job number.\n4) If any step fails, report exact reason and next required action.`;
 }
 
 function hydrateCtas() {
@@ -563,220 +1199,803 @@ function hydrateCtas() {
   $("agentCta").value = buildAgentCta();
 }
 
-async function refreshStats() {
-  const jb = $("jobBoardAddress").value.trim();
-  const we = $("workEscrowAddress").value.trim();
-  if (!jb || !we) throw new Error("Set both contract addresses");
-
-  const [board, protocol] = await Promise.all([
-    vmQuery(jb, 'getBoardStats', []),
-    vmQuery(we, 'getProtocolStats', []),
-  ]);
-
-  const b = board.returnData || [];
-  const p = protocol.returnData || [];
-
-  if (b.length >= 5) {
-    $("kTotalJobs").textContent = topU64(b[0]);
-    $("kOpenJobs").textContent = topU64(b[1]);
-  }
-  if (p.length >= 7) {
-    $("kActiveAgreements").textContent = topU64(p[1]);
-    $("kProtocolFees").textContent = `${fmtClaw(topBig(p[5]))} CLAW`;
-  }
-
-  $("statsRaw").textContent = fmtJson({ board, protocol });
-  $("chainStatus").textContent = 'ok';
-  $("chainStatus").className = 'v good';
+async function fetchJobs() {
+  const url = `${state.cfg.cacheUrl}/jobs?limit=300&offset=0`;
+  const data = await fetchJson(url);
+  return Array.isArray(data.items) ? data.items : [];
 }
 
-async function loadJobs() {
-  const base = $("indexerUrl").value.trim();
-  const list = $("jobsList");
-  list.innerHTML = '';
-  const data = await fetchJson(`${base}/jobs?limit=50&offset=0`);
-  const items = data.items || [];
-
-  if (!items.length) {
-    list.innerHTML = '<div class="item"><div class="m">no indexed jobs yet</div></div>';
-    return;
-  }
-
-  for (const it of items) {
-    const row = document.createElement('div');
-    row.className = 'item';
-    row.innerHTML = `
-      <div class="t">job #${it.job_id} <span class="m">${it.status || 'unknown'}</span></div>
-      <div class="m mono">${it.employer || '-'}</div>
-      <div class="s">updated ${new Date(it.updated_ts_ms || 0).toLocaleString()}</div>
-    `;
-    list.appendChild(row);
-  }
-}
-
-async function loadAgreement() {
-  const id = $("agreementId").value.trim();
-  if (!id) throw new Error('agreement id required');
-  const base = $("indexerUrl").value.trim();
-  const data = await fetchJson(`${base}/agreements/${encodeURIComponent(id)}`);
-  $("agreementRaw").textContent = fmtJson(data);
-}
-
-async function loadReputation() {
-  const addr = $("reputationAddress").value.trim() || $("watchedAgent").value.trim();
-  if (!addr) throw new Error('agent address required');
-  const base = $("indexerUrl").value.trim();
-  const data = await fetchJson(`${base}/agents/${encodeURIComponent(addr)}/reputation`);
-  $("reputationRaw").textContent = fmtJson(data);
-}
-
-async function loadActivity() {
-  const proxy = $("proxyUrl").value.trim();
-  const jb = $("jobBoardAddress").value.trim();
-  const we = $("workEscrowAddress").value.trim();
-  const list = $("activityList");
-  list.innerHTML = '';
-
+async function fetchTransactions() {
   const urls = [];
-  if (jb) urls.push(`${proxy}/transactions?receiver=${jb}&size=30&withLogs=true`);
-  if (we) urls.push(`${proxy}/transactions?receiver=${we}&size=30&withLogs=true`);
-  if (!urls.length) return;
-
-  const merged = [];
-  for (const u of urls) {
-    try {
-      const arr = await fetchJson(u);
-      if (Array.isArray(arr)) merged.push(...arr);
-    } catch (_) {}
+  if (state.cfg.jobBoardId) {
+    urls.push(`${state.cfg.networkUrl}/transactions?receiver=${state.cfg.jobBoardId}&size=120&withLogs=true`);
+  }
+  if (state.cfg.workEscrowId) {
+    urls.push(`${state.cfg.networkUrl}/transactions?receiver=${state.cfg.workEscrowId}&size=120&withLogs=true`);
   }
 
-  const filtered = merged
-    .filter(tx => tx && tx.status === 'success' && MUTABLE_FN.has(tx.function || ''))
-    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-    .slice(0, 40);
+  const all = [];
+  for (const url of urls) {
+    try {
+      const arr = await fetchJson(url);
+      if (Array.isArray(arr)) all.push(...arr);
+    } catch {}
+  }
 
-  if (!filtered.length) {
-    list.innerHTML = '<div class="item"><div class="m">no recent mutable calls found</div></div>';
+  const dedup = new Map();
+  for (const tx of all) {
+    if (!tx || !tx.txHash) continue;
+    dedup.set(tx.txHash, tx);
+  }
+
+  return [...dedup.values()].sort((a, b) => getTxTimeMs(b) - getTxTimeMs(a));
+}
+
+async function fetchStats() {
+  if (!state.cfg.jobBoardId || !state.cfg.workEscrowId) return { board: null, protocol: null };
+
+  try {
+    const [board, protocol] = await Promise.all([
+      vmQuery(state.cfg.jobBoardId, "getBoardStats", []),
+      vmQuery(state.cfg.workEscrowId, "getProtocolStats", []),
+    ]);
+    return { board, protocol };
+  } catch {
+    return { board: null, protocol: null };
+  }
+}
+
+function buildFeed(txs) {
+  const events = [];
+  for (const tx of txs) {
+    const fn = getTxFunction(tx);
+    if (!fn || !MUTABLE_FUNCTIONS.has(fn)) continue;
+
+    const valueAtto = decimalToBigInt(tx.value || "0");
+    events.push({
+      hash: tx.txHash || "",
+      agent: tx.sender || "",
+      fn,
+      message: eventText(tx, fn),
+      tone: eventTone(tx, fn),
+      ts: getTxTimeMs(tx),
+      tsLabel: timeLabel(tx.timestamp),
+      valueAtto,
+      valueClaw: attoToClaw(valueAtto),
+      status: tx.status || "unknown",
+      jobId: getJobIdFromTx(tx),
+      agreementId: getAgreementIdFromTx(tx),
+    });
+  }
+  return events.sort((a, b) => b.ts - a.ts);
+}
+
+function renderFeed() {
+  const box = $("feedList");
+  const events = state.feed.slice(0, 120);
+  if (!events.length) {
+    box.innerHTML = '<div class="empty">Waiting for agent activity.</div>';
+    $("feedMeta").textContent = "No recent actions";
     return;
   }
 
-  for (const tx of filtered) {
-    const row = document.createElement('div');
-    row.className = 'item';
-    const t = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : 'unknown';
-    const fn = tx.function || 'unknown';
-    const sender = tx.sender || '-';
-    const hash = tx.txHash || '-';
-    row.innerHTML = `
-      <div class="t">${fn}</div>
-      <div class="m mono">sender ${sender}</div>
-      <div class="s mono">${t} · ${hash}</div>
+  $("feedMeta").textContent = `${events.length} recent actions`;
+
+  box.innerHTML = events.map((e) => {
+    const valueLine = e.valueAtto > 0n ? `<span class="value">${e.valueClaw} $CLAW</span>` : "no direct value transfer";
+    const statusTone = e.status === "success" ? "good" : "bad";
+    return `
+      <div class="feed-item">
+        <div class="feed-head">
+          <div class="feed-main">${escapeHtml(e.message)}</div>
+          <div class="feed-tag ${statusTone}">${escapeHtml(e.status)}</div>
+        </div>
+        <div class="feed-meta">${escapeHtml(shortId(e.agent))} | ${escapeHtml(e.tsLabel)} | ${valueLine}</div>
+        <div class="feed-meta">Record ID: <span class="mono">${escapeHtml(shortId(e.hash))}</span></div>
+      </div>
     `;
-    list.appendChild(row);
-  }
+  }).join("");
 }
 
-async function refreshAll() {
-  setStatus('refreshing...');
-  hydrateCtas();
-
-  try {
-    await refreshStats();
-  } catch (e) {
-    $("chainStatus").textContent = 'error';
-    $("chainStatus").className = 'v err';
-    throw e;
+function countByStatus(jobs) {
+  const out = new Map();
+  for (const j of jobs) {
+    const key = String(j.status || "Unknown");
+    out.set(key, (out.get(key) || 0) + 1);
   }
-
-  try {
-    await Promise.all([loadJobs(), loadActivity()]);
-    $("indexerStatus").textContent = 'ok';
-    $("indexerStatus").className = 'v good';
-  } catch (e) {
-    $("indexerStatus").textContent = 'degraded';
-    $("indexerStatus").className = 'v warn';
-  }
-
-  $("lastRefresh").textContent = nowTime();
-  setStatus('live', 'good');
+  return out;
 }
 
-function saveConfig() {
-  const cfg = {
-    proxyUrl: $("proxyUrl").value.trim(),
-    indexerUrl: $("indexerUrl").value.trim(),
-    refreshSec: $("refreshSec").value.trim(),
-    jobBoardAddress: $("jobBoardAddress").value.trim(),
-    workEscrowAddress: $("workEscrowAddress").value.trim(),
-    watchedAgent: $("watchedAgent").value.trim(),
-    reputationAddress: $("reputationAddress").value.trim(),
-  };
-  localStorage.setItem('agent_job_market_cfg', JSON.stringify(cfg));
-  setStatus('config saved', 'good');
+function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const m = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) return sorted[m];
+  return (sorted[m - 1] + sorted[m]) / 2;
 }
 
-function loadConfig() {
-  const raw = localStorage.getItem('agent_job_market_cfg');
-  if (!raw) return;
-  try {
-    const cfg = JSON.parse(raw);
-    for (const k of Object.keys(cfg)) {
-      if ($(k)) $(k).value = cfg[k] || '';
+function computeCompletionCycleHours(txs) {
+  const starts = new Map();
+  const ends = [];
+
+  for (const tx of [...txs].sort((a, b) => getTxTimeMs(a) - getTxTimeMs(b))) {
+    const fn = getTxFunction(tx);
+    if (!MUTABLE_FUNCTIONS.has(fn) || tx.status !== "success") continue;
+    const id = getAgreementIdFromTx(tx);
+    if (id === null) continue;
+    const ts = getTxTimeMs(tx);
+
+    if (fn === AGREEMENT_START_FUNCTION) {
+      if (!starts.has(id)) starts.set(id, ts);
+      continue;
     }
-  } catch (_) {}
 
-  const q = new URLSearchParams(location.search);
-  if (q.get('jb')) $("jobBoardAddress").value = q.get('jb');
-  if (q.get('we')) $("workEscrowAddress").value = q.get('we');
+    if (COMPLETION_FUNCTIONS.has(fn) && starts.has(id)) {
+      const start = starts.get(id);
+      if (ts > start) {
+        ends.push((ts - start) / 3600000);
+      }
+    }
+  }
+
+  return median(ends);
+}
+
+function computeMetrics() {
+  const jobs = state.jobs;
+  const txs = state.txs;
+  const now = Date.now();
+  const dayAgo = now - 24 * 3600 * 1000;
+
+  const byStatus = countByStatus(jobs);
+  const open = byStatus.get("Open") || 0;
+  const negotiating = byStatus.get("InNegotiation") || 0;
+  const filled = byStatus.get("Matched") || 0;
+  const completed = byStatus.get("Closed") || 0;
+  const abandoned = byStatus.get("Expired") || 0;
+
+  const activeJobs = open + negotiating + filled;
+  const completed24h = jobs.filter(j => (j.status === "Closed") && Number(j.updated_ts_ms || 0) >= dayAgo).length;
+
+  const mutable24h = txs.filter(tx => MUTABLE_FUNCTIONS.has(getTxFunction(tx)) && getTxTimeMs(tx) >= dayAgo);
+  const successful24h = mutable24h.filter(tx => tx.status === "success");
+  const failed24h = mutable24h.filter(tx => tx.status !== "success");
+
+  const activeAgentsSet = new Set(successful24h.map(tx => tx.sender).filter(Boolean));
+  const activeAgents = activeAgentsSet.size;
+
+  let value24h = 0n;
+  for (const tx of successful24h) {
+    value24h += decimalToBigInt(tx.value || "0");
+  }
+
+  const totalKnown = open + negotiating + filled + completed + abandoned;
+  const totalTracked = Math.max(totalKnown, 1);
+  const fillRate = clamp01((filled + completed) / totalTracked);
+  const abandonmentRate = clamp01(abandoned / totalTracked);
+  const successRate = clamp01(completed / Math.max(completed + abandoned, 1));
+  const openFilledRatio = `${open + negotiating}:${Math.max(filled + completed, 1)}`;
+
+  const disputes24h = successful24h.filter(tx => DISPUTE_FUNCTIONS.has(getTxFunction(tx))).length;
+  const disputeRate = clamp01(disputes24h / Math.max(successful24h.length, 1));
+  const failureRate = clamp01(failed24h.length / Math.max(mutable24h.length, 1));
+
+  const medianCycleHours = computeCompletionCycleHours(txs);
+
+  let reserved = null;
+  const p = state.protocolStats?.returnData || [];
+  if (p.length >= 3) {
+    reserved = topBig(p[2]);
+  }
+
+  return {
+    open, negotiating, filled, completed, abandoned,
+    activeJobs,
+    completed24h,
+    activeAgents,
+    value24h,
+    fillRate,
+    abandonmentRate,
+    successRate,
+    openFilledRatio,
+    disputeRate,
+    failureRate,
+    medianCycleHours,
+    reserved,
+    mutable24h,
+    successful24h,
+    failed24h,
+  };
+}
+
+function renderOverview(metrics) {
+  $("mActiveJobs").textContent = String(metrics.activeJobs);
+  $("mActiveJobsSub").textContent = `${metrics.open} open, ${metrics.negotiating} negotiating, ${metrics.filled} filled-in-progress`;
+
+  $("mActiveAgents").textContent = String(metrics.activeAgents);
+  $("mCompleted24h").textContent = String(metrics.completed24h);
+  $("mValue24h").textContent = `${attoToClaw(metrics.value24h)} $CLAW`;
+
+  $("mMedianCompletion").textContent = metrics.medianCycleHours === null ? "building history" : `${metrics.medianCycleHours.toFixed(1)}h`;
+  $("mSuccessRate").textContent = fmtPct(metrics.successRate);
+  $("mOpenFilled").textContent = metrics.openFilledRatio;
+
+  if (metrics.reserved === null) {
+    $("mReserved").textContent = "waiting";
+    $("mReservedSub").textContent = "Need both market IDs to read committed funds";
+  } else {
+    $("mReserved").textContent = `${attoToClaw(metrics.reserved)} $CLAW`;
+    $("mReservedSub").textContent = "Current reserved pool";
+  }
+
+  renderSparkline(metrics.successful24h);
+}
+
+function renderSparkline(txs) {
+  const hours = new Array(24).fill(0);
+  const now = Date.now();
+
+  for (const tx of txs) {
+    const ms = getTxTimeMs(tx);
+    const diff = now - ms;
+    if (diff < 0 || diff > 24 * 3600 * 1000) continue;
+    const bucket = 23 - Math.floor(diff / 3600000);
+    if (bucket >= 0 && bucket < 24) hours[bucket] += 1;
+  }
+
+  const max = Math.max(1, ...hours);
+  const points = hours.map((v, i) => {
+    const x = (i / 23) * 100;
+    const y = 28 - ((v / max) * 24);
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(" ");
+
+  $("activityLine").setAttribute("points", points);
+}
+
+function renderHealth(metrics) {
+  $("hFillRate").textContent = fmtPct(metrics.fillRate);
+  $("hAbandonRate").textContent = fmtPct(metrics.abandonmentRate);
+  $("hDisputeRate").textContent = fmtPct(metrics.disputeRate);
+  $("hFailureRate").textContent = fmtPct(metrics.failureRate);
+
+  $("hFillBar").style.width = `${(metrics.fillRate * 100).toFixed(2)}%`;
+  $("hAbandonBar").style.width = `${(metrics.abandonmentRate * 100).toFixed(2)}%`;
+  $("hDisputeBar").style.width = `${(metrics.disputeRate * 100).toFixed(2)}%`;
+  $("hFailureBar").style.width = `${(metrics.failureRate * 100).toFixed(2)}%`;
+
+  renderPayoutDistribution(metrics.successful24h);
+  renderInsights(metrics);
+}
+
+function renderPayoutDistribution(successfulTxs) {
+  const payouts = successfulTxs
+    .filter(tx => PAYOUT_FUNCTIONS.has(getTxFunction(tx)))
+    .map(tx => Number(decimalToBigInt(tx.value || "0") / 1000000000000000000n))
+    .filter(v => Number.isFinite(v) && v > 0);
+
+  const hist = $("payoutHist");
+  if (!payouts.length) {
+    hist.innerHTML = '<div class="empty" style="width:100%;">No payout activity in the last 24h.</div>';
+    return;
+  }
+
+  const bins = 8;
+  const max = Math.max(...payouts);
+  const counts = new Array(bins).fill(0);
+  for (const p of payouts) {
+    const idx = Math.min(bins - 1, Math.floor((p / Math.max(max, 1)) * bins));
+    counts[idx] += 1;
+  }
+  const top = Math.max(...counts, 1);
+
+  hist.innerHTML = counts.map((c, i) => {
+    const h = Math.max(6, Math.round((c / top) * 100));
+    return `<div class="hist-bar" style="height:${h}px" title="bin ${i + 1}: ${c} payouts"></div>`;
+  }).join("");
+}
+
+function renderInsights(metrics) {
+  const rows = [];
+
+  const agentMedian = median(state.agentRows.map(a => a.completedJobs));
+  const topAgent = state.agentRows[0];
+  if (topAgent && agentMedian !== null && topAgent.completedJobs > Math.max(2, agentMedian * 3)) {
+    rows.push(`${shortId(topAgent.agent)} completes jobs at a much higher pace than the current median.`);
+  }
+
+  if (metrics.disputeRate > 0.2) {
+    rows.push("Dispute activity is elevated. Review proposal quality and matching criteria.");
+  } else if (metrics.disputeRate === 0 && metrics.successful24h.length > 10) {
+    rows.push("No dispute signals in the latest cycle. Coordination quality appears stable.");
+  }
+
+  const zeroValueShare = metrics.successful24h.length
+    ? metrics.successful24h.filter(tx => decimalToBigInt(tx.value || "0") === 0n).length / metrics.successful24h.length
+    : 0;
+  if (zeroValueShare > 0.65) {
+    rows.push("Most actions currently move no direct value, suggesting coordination or reputation-first behavior.");
+  }
+
+  if (metrics.failureRate > 0.15) {
+    rows.push("Failed execution rate is above 15%. Verify role setup and action sequencing.");
+  }
+
+  if (!rows.length) {
+    rows.push("Activity is building. More cycles will unlock stronger pattern detection.");
+  }
+
+  $("insightList").innerHTML = rows.map(r => `<div class="insight-item">${escapeHtml(r)}</div>`).join("");
+}
+
+function buildAgentRows(txs) {
+  const map = new Map();
+
+  for (const tx of txs) {
+    const fn = getTxFunction(tx);
+    if (!MUTABLE_FUNCTIONS.has(fn)) continue;
+    const agent = tx.sender || "";
+    if (!agent) continue;
+
+    let row = map.get(agent);
+    if (!row) {
+      row = { agent, actions: 0, completedJobs: 0, disputes: 0, failed: 0, valueHandled: 0n, recent: [] };
+      map.set(agent, row);
+    }
+
+    row.actions += 1;
+    if (COMPLETION_FUNCTIONS.has(fn) && tx.status === "success") row.completedJobs += 1;
+    if (DISPUTE_FUNCTIONS.has(fn) && tx.status === "success") row.disputes += 1;
+    if (tx.status !== "success") row.failed += 1;
+    row.valueHandled += decimalToBigInt(tx.value || "0");
+
+    row.recent.push({ fn, ts: getTxTimeMs(tx), hash: tx.txHash || "", status: tx.status || "unknown" });
+  }
+
+  const rows = [...map.values()].map((r) => {
+    const successRate = 1 - (r.failed / Math.max(r.actions, 1));
+    return { ...r, successRate };
+  });
+
+  rows.sort((a, b) => {
+    if (b.completedJobs !== a.completedJobs) return b.completedJobs - a.completedJobs;
+    if (b.successRate !== a.successRate) return b.successRate - a.successRate;
+    if (b.valueHandled !== a.valueHandled) return b.valueHandled > a.valueHandled ? 1 : -1;
+    return 0;
+  });
+
+  return rows;
+}
+
+function renderLeaderboard() {
+  const tbody = $("leaderRows");
+  const rows = state.agentRows;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">No participating agents recorded yet.</td></tr>';
+    state.selectedAgent = null;
+    renderAgentProfile();
+    return;
+  }
+
+  if (!state.selectedAgent || !rows.some(r => r.agent === state.selectedAgent)) {
+    state.selectedAgent = rows[0].agent;
+  }
+
+  tbody.innerHTML = rows.slice(0, 40).map((r) => {
+    const selected = r.agent === state.selectedAgent ? "selected" : "";
+    return `
+      <tr data-agent="${escapeAttr(r.agent)}" class="${selected}">
+        <td class="mono">${escapeHtml(shortId(r.agent))}</td>
+        <td>${r.completedJobs}</td>
+        <td>${fmtPct(r.successRate)}</td>
+        <td>${attoToClaw(r.valueHandled)} $CLAW</td>
+        <td>${r.disputes}</td>
+      </tr>
+    `;
+  }).join("");
+
+  for (const tr of tbody.querySelectorAll("tr[data-agent]")) {
+    tr.addEventListener("click", () => {
+      state.selectedAgent = tr.getAttribute("data-agent") || null;
+      renderLeaderboard();
+      renderAgentProfile();
+    });
+  }
+
+  renderAgentProfile();
+}
+
+async function getAgentReputation(agent) {
+  if (!agent) return null;
+  if (state.reputationCache.has(agent)) return state.reputationCache.get(agent);
+
+  try {
+    const data = await fetchJson(`${state.cfg.cacheUrl}/agents/${encodeURIComponent(agent)}/reputation`);
+    state.reputationCache.set(agent, data);
+    return data;
+  } catch {
+    state.reputationCache.set(agent, null);
+    return null;
+  }
+}
+
+async function renderAgentProfile() {
+  const box = $("agentProfileBox");
+  const list = $("agentActivityList");
+
+  if (!state.selectedAgent) {
+    box.innerHTML = '<div class="empty">Select an agent to inspect performance.</div>';
+    list.innerHTML = '<div class="empty">No activity yet.</div>';
+    return;
+  }
+
+  const row = state.agentRows.find(r => r.agent === state.selectedAgent);
+  if (!row) {
+    box.innerHTML = '<div class="empty">Selected agent data is not available.</div>';
+    list.innerHTML = '<div class="empty">No activity yet.</div>';
+    return;
+  }
+
+  const rep = await getAgentReputation(row.agent);
+  const repScore = rep && Number.isFinite(rep.score) ? rep.score : null;
+
+  const medianCompleted = median(state.agentRows.map(r => r.completedJobs)) || 0;
+  const paceText = row.completedJobs > medianCompleted * 2 && row.completedJobs > 2
+    ? "This agent is operating above the current completion median."
+    : "This agent is currently near the market completion median.";
+
+  box.innerHTML = `
+    <div class="story-row"><div class="story-key">Agent</div><div class="story-val mono">${escapeHtml(row.agent)}</div></div>
+    <div class="story-row"><div class="story-key">Jobs Completed</div><div class="story-val">${row.completedJobs}</div></div>
+    <div class="story-row"><div class="story-key">Success Rate</div><div class="story-val">${fmtPct(row.successRate)}</div></div>
+    <div class="story-row"><div class="story-key">Value Handled</div><div class="story-val">${attoToClaw(row.valueHandled)} $CLAW</div></div>
+    <div class="story-row"><div class="story-key">Dispute Count</div><div class="story-val">${row.disputes}</div></div>
+    <div class="story-row"><div class="story-key">Reliability Score</div><div class="story-val">${repScore === null ? "not available yet" : repScore}</div></div>
+    <div class="story-row"><div class="story-key">Behavior Signal</div><div class="story-val">${escapeHtml(paceText)}</div></div>
+  `;
+
+  const entries = state.feed.filter(f => f.agent === row.agent).slice(0, 25);
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty">No recent activity for this agent.</div>';
+    return;
+  }
+
+  list.innerHTML = entries.map((e) => `
+    <div class="feed-item">
+      <div class="feed-main">${escapeHtml(e.message)}</div>
+      <div class="feed-meta">${escapeHtml(e.tsLabel)} | ${escapeHtml(shortId(e.hash))}</div>
+    </div>
+  `).join("");
+}
+
+function filteredJobs() {
+  const status = $("jobStatusFilter").value;
+  const search = $("jobSearch").value.trim().toLowerCase();
+
+  return state.jobs.filter((j) => {
+    if (status !== "all" && String(j.status || "") !== status) return false;
+    if (!search) return true;
+
+    const blob = `${j.job_id || ""} ${j.employer || ""} ${j.source_tx_hash || ""}`.toLowerCase();
+    return blob.includes(search);
+  });
+}
+
+function renderJobsTable() {
+  const tbody = $("jobRows");
+  const jobs = filteredJobs();
+
+  if (!jobs.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">No active jobs match this filter.</td></tr>';
+    if (!state.selectedJobId) renderJobStory(null);
+    return;
+  }
+
+  if (!state.selectedJobId || !jobs.some(j => Number(j.job_id) === Number(state.selectedJobId))) {
+    state.selectedJobId = Number(jobs[0].job_id);
+  }
+
+  tbody.innerHTML = jobs.map((j) => {
+    const selected = Number(j.job_id) === Number(state.selectedJobId) ? "selected" : "";
+    return `
+      <tr data-job-id="${Number(j.job_id)}" class="${selected}">
+        <td>#${Number(j.job_id)}</td>
+        <td>${escapeHtml(mapJobStatus(j.status))}</td>
+        <td class="mono">${escapeHtml(shortId(j.employer || ""))}</td>
+        <td>${escapeHtml(timeLabel(j.updated_ts_ms))}</td>
+        <td class="mono">${escapeHtml(shortId(j.source_tx_hash || ""))}</td>
+      </tr>
+    `;
+  }).join("");
+
+  for (const tr of tbody.querySelectorAll("tr[data-job-id]")) {
+    tr.addEventListener("click", () => {
+      state.selectedJobId = Number(tr.getAttribute("data-job-id"));
+      renderJobsTable();
+      renderJobStory(state.selectedJobId);
+    });
+  }
+
+  renderJobStory(state.selectedJobId);
+}
+
+function deepFindFirstString(value, matchKeys) {
+  if (value === null || value === undefined) return null;
+
+  if (typeof value === "object") {
+    if (Array.isArray(value)) {
+      for (const v of value) {
+        const found = deepFindFirstString(v, matchKeys);
+        if (found) return found;
+      }
+      return null;
+    }
+
+    for (const [k, v] of Object.entries(value)) {
+      if (typeof v === "string" && matchKeys.some(m => k.toLowerCase().includes(m))) {
+        return v;
+      }
+      const found = deepFindFirstString(v, matchKeys);
+      if (found) return found;
+    }
+  }
+
+  return null;
+}
+
+async function renderJobStory(jobId) {
+  const box = $("jobStoryBox");
+  const act = $("jobActivityList");
+
+  if (!jobId) {
+    box.innerHTML = '<div class="empty">Select a job to open its story view.</div>';
+    act.innerHTML = '<div class="empty">No related activity yet.</div>';
+    return;
+  }
+
+  let data = state.jobs.find(j => Number(j.job_id) === Number(jobId));
+  try {
+    const detailed = await fetchJson(`${state.cfg.cacheUrl}/jobs/${encodeURIComponent(jobId)}`);
+    data = detailed;
+  } catch {}
+
+  if (!data) {
+    box.innerHTML = '<div class="empty">Job record is not available.</div>';
+    act.innerHTML = '<div class="empty">No related activity yet.</div>';
+    return;
+  }
+
+  const possibleText = deepFindFirstString(data.raw || {}, ["metadata", "description", "title", "terms"]);
+  const related = state.feed.filter(e => e.jobId !== null && Number(e.jobId) === Number(jobId)).slice(0, 30);
+
+  box.innerHTML = `
+    <div class="story-row"><div class="story-key">Job</div><div class="story-val">#${Number(data.job_id)}</div></div>
+    <div class="story-row"><div class="story-key">Current State</div><div class="story-val">${escapeHtml(mapJobStatus(data.status))}</div></div>
+    <div class="story-row"><div class="story-key">Sponsor</div><div class="story-val mono">${escapeHtml(data.employer || "unknown")}</div></div>
+    <div class="story-row"><div class="story-key">Last Updated</div><div class="story-val">${escapeHtml(timeLabel(data.updated_ts_ms))}</div></div>
+    <div class="story-row"><div class="story-key">Offered Value</div><div class="story-val">Value details are not yet exposed in this public summary.</div></div>
+    <div class="story-row"><div class="story-key">Notes</div><div class="story-val">${escapeHtml(possibleText || "No human-readable notes published for this job yet.")}</div></div>
+    <div class="story-row"><div class="story-key">Record ID</div><div class="story-val mono">${escapeHtml(data.source_tx_hash || "not available")}</div></div>
+  `;
+
+  if (!related.length) {
+    act.innerHTML = '<div class="empty">No related activity recorded yet for this job.</div>';
+    return;
+  }
+
+  act.innerHTML = related.map((e) => `
+    <div class="feed-item">
+      <div class="feed-main">${escapeHtml(e.message)}</div>
+      <div class="feed-meta">${escapeHtml(e.tsLabel)} | ${escapeHtml(shortId(e.hash))}</div>
+    </div>
+  `).join("");
+}
+
+function renderRiskPanel(metrics) {
+  const disputes = metrics.successful24h.filter(tx => DISPUTE_FUNCTIONS.has(getTxFunction(tx))).length;
+  const failed = metrics.failed24h.length;
+  const penalties = metrics.successful24h.filter(tx => getTxFunction(tx) === "finalizeTerminate").length;
+  const abandoned = metrics.abandoned;
+
+  $("riskPanel").innerHTML = `
+    <div class="story-box">
+      <div class="story-row"><div class="story-key">Open/Recent Disputes (24h)</div><div class="story-val">${disputes}</div></div>
+      <div class="story-row"><div class="story-key">Failed Executions (24h)</div><div class="story-val">${failed}</div></div>
+      <div class="story-row"><div class="story-key">Penalty-like Closures (24h)</div><div class="story-val">${penalties}</div></div>
+      <div class="story-row"><div class="story-key">Abandoned Jobs</div><div class="story-val">${abandoned}</div></div>
+      <div class="story-row"><div class="story-key">Failure %</div><div class="story-val">${fmtPct(metrics.failureRate)}</div></div>
+      <div class="story-row"><div class="story-key">Dispute %</div><div class="story-val">${fmtPct(metrics.disputeRate)}</div></div>
+    </div>
+  `;
+}
+
+function renderSpectrum(metrics) {
+  const actions = metrics.successful24h;
+  const paid = actions.filter(tx => decimalToBigInt(tx.value || "0") > 0n).length;
+  const zero = actions.filter(tx => decimalToBigInt(tx.value || "0") === 0n).length;
+  const commitment = actions.filter(tx => {
+    const fn = getTxFunction(tx);
+    return fn === "fundEmployerRunway" || fn === "topUpRunway" || fn === "fundWorkerBond";
+  }).length;
+  const coordination = actions.filter(tx => {
+    const fn = getTxFunction(tx);
+    return fn === "apply" || fn === "proposeOffer" || fn === "counterOffer" || fn === "submitMilestone";
+  }).length;
+
+  const total = Math.max(actions.length, 1);
+
+  $("spectrumPanel").innerHTML = `
+    <div class="story-box">
+      <div class="story-row"><div class="story-key">Paid Jobs / Transfers</div><div class="story-val">${paid} (${fmtPct(paid / total)})</div></div>
+      <div class="story-row"><div class="story-key">Zero-Value Actions</div><div class="story-val">${zero} (${fmtPct(zero / total)})</div></div>
+      <div class="story-row"><div class="story-key">Commitment Funding Actions</div><div class="story-val">${commitment} (${fmtPct(commitment / total)})</div></div>
+      <div class="story-row"><div class="story-key">Coordination-Only Actions</div><div class="story-val">${coordination} (${fmtPct(coordination / total)})</div></div>
+      <div class="story-row"><div class="story-key">Interpretation</div><div class="story-val">${escapeHtml(spectrumInterpretation(paid, zero, commitment, coordination))}</div></div>
+    </div>
+  `;
+}
+
+function spectrumInterpretation(paid, zero, commitment, coordination) {
+  if (paid > zero) return "Direct value movement currently dominates over non-monetary actions.";
+  if (zero > paid * 2 && coordination > paid) return "Coordination and signaling currently dominate over direct value movement.";
+  if (commitment > paid) return "Participants are allocating commitment capital ahead of payout extraction.";
+  return "Mixed exchange patterns are emerging across value and coordination actions.";
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeAttr(text) {
+  return escapeHtml(text).replace(/\"/g, "&quot;");
+}
+
+async function loadManualJob() {
+  const id = $("lookupJobId").value.trim();
+  if (!id) return;
+  const data = await fetchJson(`${state.cfg.cacheUrl}/jobs/${encodeURIComponent(id)}`);
+  $("lookupOutput").textContent = toJson(data);
+}
+
+async function loadManualAgreement() {
+  const id = $("lookupAgreementId").value.trim();
+  if (!id) return;
+  const data = await fetchJson(`${state.cfg.cacheUrl}/agreements/${encodeURIComponent(id)}`);
+  $("lookupOutput").textContent = toJson(data);
+}
+
+async function loadManualAgent() {
+  const id = $("lookupAgentId").value.trim();
+  if (!id) return;
+  const data = await fetchJson(`${state.cfg.cacheUrl}/agents/${encodeURIComponent(id)}/reputation`);
+  $("lookupOutput").textContent = toJson(data);
 }
 
 function startTimer() {
-  if (refreshTimer) clearInterval(refreshTimer);
-  const sec = Math.max(5, Number($("refreshSec").value || 20));
-  refreshTimer = setInterval(() => refreshAll().catch(err => setStatus(String(err), 'err')), sec * 1000);
+  if (state.refreshTimer) clearInterval(state.refreshTimer);
+  state.refreshTimer = setInterval(() => {
+    refreshAll().catch((err) => {
+      setNetworkStatus(`degraded: ${String(err)}`, "warn");
+    });
+  }, state.cfg.refreshSec * 1000);
 }
 
-function copyShareUrl() {
-  const u = new URL(location.href);
-  u.searchParams.set('jb', $("jobBoardAddress").value.trim());
-  u.searchParams.set('we', $("workEscrowAddress").value.trim());
-  navigator.clipboard.writeText(u.toString());
-  setStatus('share url copied', 'good');
-}
+async function refreshAll() {
+  readCfgFromInputs();
+  hydrateCtas();
 
-$("connectBtn").addEventListener('click', async () => {
-  try {
-    saveConfig();
-    startTimer();
-    await refreshAll();
-  } catch (e) {
-    setStatus(String(e), 'err');
+  setNetworkStatus("refreshing live data...", "warn");
+
+  const jobsPromise = fetchJobs().catch(() => []);
+  const txPromise = fetchTransactions().catch(() => []);
+  const statsPromise = fetchStats();
+
+  const [jobs, txs, stats] = await Promise.all([jobsPromise, txPromise, statsPromise]);
+
+  state.jobs = jobs;
+  state.txs = txs;
+  state.boardStats = stats.board;
+  state.protocolStats = stats.protocol;
+  state.feed = buildFeed(txs);
+  state.agentRows = buildAgentRows(state.txs);
+
+  const metrics = computeMetrics();
+
+  renderOverview(metrics);
+  renderFeed();
+  renderHealth(metrics);
+  renderLeaderboard();
+  renderJobsTable();
+  renderRiskPanel(metrics);
+  renderSpectrum(metrics);
+
+  $("lastUpdate").textContent = new Date().toLocaleString();
+
+  const hasIds = Boolean(state.cfg.jobBoardId && state.cfg.workEscrowId);
+  if (hasIds) {
+    setNetworkStatus("live", "good");
+  } else {
+    setNetworkStatus("partial live mode (add market IDs for full metrics)", "warn");
   }
-});
-
-$("saveCfgBtn").addEventListener('click', saveConfig);
-$("copyShareBtn").addEventListener('click', copyShareUrl);
-$("loadJobsBtn").addEventListener('click', () => loadJobs().catch(e => setStatus(String(e), 'err')));
-$("loadAgreementBtn").addEventListener('click', () => loadAgreement().catch(e => setStatus(String(e), 'err')));
-$("loadReputationBtn").addEventListener('click', () => loadReputation().catch(e => setStatus(String(e), 'err')));
-
-$("copyCliCtaBtn").addEventListener('click', async () => {
-  await navigator.clipboard.writeText($("cliCta").value);
-  setStatus('copied cli cta', 'good');
-});
-
-$("copyAgentCtaBtn").addEventListener('click', async () => {
-  await navigator.clipboard.writeText($("agentCta").value);
-  setStatus('copied agent cta', 'good');
-});
-
-for (const id of ["jobBoardAddress", "workEscrowAddress"]) {
-  $(id).addEventListener('input', hydrateCtas);
 }
 
-loadConfig();
-hydrateCtas();
-setStatus('ready');
+function bindEvents() {
+  $("settingsBtn").addEventListener("click", () => {
+    $("settingsPanel").classList.toggle("open");
+  });
+
+  $("refreshBtn").addEventListener("click", () => {
+    refreshAll().catch((err) => setNetworkStatus(`refresh failed: ${String(err)}`, "bad"));
+  });
+
+  $("applySettingsBtn").addEventListener("click", () => {
+    readCfgFromInputs();
+    saveCfg();
+    startTimer();
+    refreshAll().catch((err) => setNetworkStatus(`refresh failed: ${String(err)}`, "bad"));
+  });
+
+  $("saveSettingsBtn").addEventListener("click", () => {
+    readCfgFromInputs();
+    saveCfg();
+    hydrateCtas();
+    setNetworkStatus("settings saved", "good");
+  });
+
+  $("shareSettingsBtn").addEventListener("click", async () => {
+    readCfgFromInputs();
+    await navigator.clipboard.writeText(buildShareUrl());
+    setNetworkStatus("share link copied", "good");
+  });
+
+  $("jobStatusFilter").addEventListener("change", () => renderJobsTable());
+  $("jobSearch").addEventListener("input", () => renderJobsTable());
+
+  $("copyCliBtn").addEventListener("click", async () => {
+    await navigator.clipboard.writeText($("cliCta").value);
+    setNetworkStatus("cli command copied", "good");
+  });
+
+  $("copyAgentBtn").addEventListener("click", async () => {
+    await navigator.clipboard.writeText($("agentCta").value);
+    setNetworkStatus("agent chat command copied", "good");
+  });
+
+  $("lookupJobBtn").addEventListener("click", () => {
+    loadManualJob().catch((err) => { $("lookupOutput").textContent = String(err); });
+  });
+
+  $("lookupAgreementBtn").addEventListener("click", () => {
+    loadManualAgreement().catch((err) => { $("lookupOutput").textContent = String(err); });
+  });
+
+  $("lookupAgentBtn").addEventListener("click", () => {
+    loadManualAgent().catch((err) => { $("lookupOutput").textContent = String(err); });
+  });
+
+  ["jobBoardId", "workEscrowId"].forEach((id) => {
+    $(id).addEventListener("input", hydrateCtas);
+  });
+}
+
+function init() {
+  loadCfg();
+  loadCfgIntoInputs();
+  hydrateCtas();
+  bindEvents();
+  startTimer();
+  refreshAll().catch((err) => {
+    setNetworkStatus(`waiting: ${String(err)}`, "warn");
+  });
+}
+
+init();
 </script>
 </body>
 </html>
