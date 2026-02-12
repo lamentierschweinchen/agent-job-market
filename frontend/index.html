@@ -17,6 +17,7 @@
     --bg-hover: #161f2d;
     --line: #283246;
     --line-bright: #3d4f6d;
+    --line-faint: rgba(227, 69, 67, 0.12);
     --red: #e34543;
     --amber: #efb14b;
     --aqua: #53d6d0;
@@ -35,6 +36,7 @@
     font-size: 13px;
     line-height: 1.55;
     min-height: 100vh;
+    animation: crtFlicker 9s steps(20, end) infinite;
   }
 
   body::before {
@@ -43,9 +45,17 @@
     inset: 0;
     pointer-events: none;
     background:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 31px,
+        var(--line-faint) 32px,
+        transparent 33px
+      ),
       radial-gradient(1200px 500px at 90% -20%, rgba(227, 69, 67, 0.18), transparent 70%),
       radial-gradient(900px 500px at 8% -20%, rgba(83, 214, 208, 0.08), transparent 70%);
     z-index: 0;
+    animation: driftGrid 18s linear infinite;
   }
 
   body::after {
@@ -61,6 +71,7 @@
       rgba(0, 0, 0, 0.07) 4px
     );
     z-index: 1;
+    animation: scanlineMove 9s linear infinite;
   }
 
   .app {
@@ -71,12 +82,45 @@
     padding: 18px 0 36px;
   }
 
+  .app::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: -25%;
+    height: 150px;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(227, 69, 67, 0.07), rgba(227, 69, 67, 0));
+    z-index: 2;
+    animation: sweepDown 8.8s linear infinite;
+  }
+
   .panel {
     border: 1px solid var(--line);
     border-radius: 8px;
     background: rgba(12, 18, 28, 0.92);
     margin-bottom: 12px;
     overflow: hidden;
+    position: relative;
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    left: -45%;
+    top: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(227, 69, 67, 0.08), transparent);
+    pointer-events: none;
+    animation: panelSweep 11s ease-in-out infinite;
+  }
+
+  .panel:hover {
+    transform: translateY(-1px);
+    border-color: #3f5575;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
   }
 
   .panel-head {
@@ -97,6 +141,12 @@
     font-weight: 700;
   }
 
+  .panel-title .live-dot {
+    color: var(--red);
+    margin-left: 4px;
+    animation: statusBlink 1s step-end infinite;
+  }
+
   .panel-meta {
     font-size: 10px;
     color: var(--text-dim);
@@ -112,6 +162,19 @@
     padding: 14px;
     margin-bottom: 12px;
     background: linear-gradient(180deg, rgba(21, 30, 44, 0.72), rgba(12, 18, 28, 0.95));
+    position: relative;
+    overflow: hidden;
+  }
+
+  .topbar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(227, 69, 67, 0.8), transparent);
+    animation: horizonPulse 2.6s ease-in-out infinite;
   }
 
   .top-main {
@@ -124,15 +187,67 @@
   .title {
     color: var(--red);
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 2px;
     font-size: 20px;
     font-weight: 700;
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 0 12px rgba(227, 69, 67, 0.15);
+    animation: titleFlicker 7.6s steps(16, end) infinite;
+  }
+
+  .title::before,
+  .title::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+  }
+
+  .title::before {
+    transform: translate(2px, 2px);
+    color: rgba(227, 69, 67, 0.34);
+    z-index: -1;
+  }
+
+  .title::after {
+    transform: translate(4px, 4px);
+    color: rgba(227, 69, 67, 0.15);
+    z-index: -2;
   }
 
   .subtitle {
     color: var(--text-soft);
     margin-top: 4px;
     max-width: 720px;
+    opacity: 0.95;
+  }
+
+  .subtitle .cursor {
+    color: var(--red);
+    animation: cursorBlink 1s step-end infinite;
+  }
+
+  .system-line {
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .system-line .state {
+    color: var(--green);
+    animation: statusBlink 1.4s ease-in-out infinite;
+  }
+
+  .system-line .state.warn {
+    color: var(--yellow);
+  }
+
+  .system-line .state.bad {
+    color: var(--danger);
   }
 
   .top-actions {
@@ -165,16 +280,19 @@
   .dot.good {
     background: var(--green);
     box-shadow: 0 0 8px rgba(71, 213, 143, 0.6);
+    animation: statusPulse 1.8s ease-in-out infinite;
   }
 
   .dot.warn {
     background: var(--yellow);
     box-shadow: 0 0 8px rgba(244, 189, 87, 0.6);
+    animation: statusPulse 1.6s ease-in-out infinite;
   }
 
   .dot.bad {
     background: var(--danger);
     box-shadow: 0 0 8px rgba(255, 106, 114, 0.6);
+    animation: statusPulse 1.1s ease-in-out infinite;
   }
 
   .btn {
@@ -187,11 +305,13 @@
     font-family: inherit;
     font-size: 12px;
     width: auto;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
   }
 
   .btn:hover {
     border-color: var(--line-bright);
     background: var(--bg-hover);
+    transform: translateY(-1px);
   }
 
   .btn.primary {
@@ -215,6 +335,19 @@
     border-radius: 6px;
     background: #0b111a;
     padding: 9px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric::after {
+    content: '';
+    position: absolute;
+    left: -40%;
+    top: 0;
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(83, 214, 208, 0.14), transparent);
+    animation: metricSweep 6.4s ease-in-out infinite;
   }
 
   .metric-label {
@@ -230,6 +363,15 @@
     color: var(--aqua);
     font-weight: 700;
     word-break: break-word;
+    text-shadow: 0 0 8px rgba(83, 214, 208, 0.22);
+  }
+
+  .metric-value.tick {
+    animation: valueTick 0.42s ease;
+  }
+
+  .tick {
+    animation: valueTick 0.42s ease;
   }
 
   .metric-sub {
@@ -256,10 +398,17 @@
   .feed-item {
     border-bottom: 1px solid #182233;
     padding: 10px;
+    transition: background 0.2s ease, border-left-color 0.2s ease;
   }
 
   .feed-item:last-child {
     border-bottom: none;
+  }
+
+  .feed-item.fresh {
+    border-left: 2px solid rgba(227, 69, 67, 0.8);
+    background: rgba(227, 69, 67, 0.08);
+    animation: feedFlash 1.15s ease;
   }
 
   .feed-head {
@@ -329,6 +478,17 @@
     height: 100%;
     width: 0%;
     background: linear-gradient(90deg, #2f6ccf, #53d6d0);
+    transition: width 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .bar > span::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: translateX(-120%);
+    animation: barShimmer 2.2s linear infinite;
   }
 
   .bar.warn > span {
@@ -364,6 +524,10 @@
     background: #0a1018;
   }
 
+  #activityLine {
+    transition: stroke-dashoffset 0.86s ease;
+  }
+
   .hist {
     display: flex;
     align-items: flex-end;
@@ -381,6 +545,8 @@
     border: 1px solid #2b3d57;
     background: linear-gradient(180deg, rgba(83, 214, 208, 0.75), rgba(47, 106, 198, 0.55));
     border-radius: 2px 2px 0 0;
+    transform-origin: bottom center;
+    animation: histGrow 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .table-wrap {
@@ -590,6 +756,13 @@
     padding: 12px;
   }
 
+  .reveal-in {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: revealIn 0.62s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+
   .tools-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -612,6 +785,99 @@
     overflow: auto;
     font-size: 11px;
     line-height: 1.45;
+  }
+
+  @keyframes crtFlicker {
+    0%, 100% { opacity: 1; }
+    96% { opacity: 1; }
+    97% { opacity: 0.985; }
+    98% { opacity: 1; }
+    99% { opacity: 0.99; }
+  }
+
+  @keyframes driftGrid {
+    from { background-position: 0 0, 0 0, 0 0; }
+    to { background-position: 64px 0, 0 0, 0 0; }
+  }
+
+  @keyframes scanlineMove {
+    from { background-position: 0 0; }
+    to { background-position: 0 8px; }
+  }
+
+  @keyframes sweepDown {
+    0% { transform: translateY(-28vh); opacity: 0; }
+    10% { opacity: 0.8; }
+    100% { transform: translateY(115vh); opacity: 0; }
+  }
+
+  @keyframes panelSweep {
+    0%, 75%, 100% { transform: translateX(0%); opacity: 0; }
+    78% { opacity: 0.55; }
+    92% { transform: translateX(380%); opacity: 0.15; }
+  }
+
+  @keyframes horizonPulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes titleFlicker {
+    0%, 100% { opacity: 1; }
+    28% { opacity: 0.98; }
+    29% { opacity: 0.9; }
+    30% { opacity: 1; }
+    64% { opacity: 1; }
+    65% { opacity: 0.92; }
+    66% { opacity: 1; }
+  }
+
+  @keyframes cursorBlink {
+    50% { opacity: 0; }
+  }
+
+  @keyframes statusBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.66; }
+  }
+
+  @keyframes statusPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+  }
+
+  @keyframes metricSweep {
+    0%, 84%, 100% { transform: translateX(0%); opacity: 0; }
+    87% { opacity: 0.5; }
+    96% { transform: translateX(390%); opacity: 0.08; }
+  }
+
+  @keyframes valueTick {
+    0% { transform: translateY(2px); opacity: 0.45; }
+    40% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes feedFlash {
+    0% { background: rgba(227, 69, 67, 0.35); }
+    100% { background: rgba(227, 69, 67, 0.08); }
+  }
+
+  @keyframes barShimmer {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(180%); }
+  }
+
+  @keyframes histGrow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes revealIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @media (max-width: 1120px) {
@@ -637,8 +903,9 @@
   <header class="topbar">
     <div class="top-main">
       <div>
-        <div class="title">Live Agent Market</div>
-        <div class="subtitle">Real-time observatory of autonomous job coordination and value exchange. Designed for humans tracking behavior, reliability, and system health.</div>
+        <div class="title" data-title="Live Agent Market">Live Agent Market</div>
+        <div class="subtitle">Real-time observatory of autonomous job coordination and value exchange. Designed for humans tracking behavior, reliability, and system health.<span class="cursor">_</span></div>
+        <div class="system-line">System status: <span class="state" id="systemState">monitoring</span> // live refresh active</div>
       </div>
       <div class="top-actions">
         <div class="status-pill"><span class="dot" id="networkDot"></span><span id="networkStatus">waiting for connection</span></div>
@@ -718,7 +985,7 @@
   <div class="layout-two">
     <section class="panel">
       <div class="panel-head">
-        <div class="panel-title">Live Activity Feed</div>
+        <div class="panel-title">Live Activity Feed <span class="live-dot">●</span></div>
         <div class="panel-meta" id="feedMeta">Narrative of recent actions</div>
       </div>
       <div class="panel-body">
@@ -944,6 +1211,9 @@ const state = {
   selectedAgent: null,
   agentRows: [],
   reputationCache: new Map(),
+  seenFeedHashes: new Set(),
+  metricText: new Map(),
+  introDone: false,
 };
 
 function toJson(v) {
@@ -980,6 +1250,26 @@ function clamp01(x) {
 function fmtPct(v) {
   if (!Number.isFinite(v)) return "-";
   return `${(v * 100).toFixed(1)}%`;
+}
+
+function setMetricValue(id, text) {
+  const el = $(id);
+  if (!el) return;
+  if (state.metricText.get(id) === text) return;
+  state.metricText.set(id, text);
+  el.textContent = text;
+  el.classList.remove("tick");
+  void el.offsetWidth;
+  el.classList.add("tick");
+}
+
+function setBarWidth(id, ratio) {
+  const el = $(id);
+  if (!el) return;
+  const width = `${(clamp01(ratio) * 100).toFixed(2)}%`;
+  if (el.dataset.width === width) return;
+  el.dataset.width = width;
+  el.style.width = width;
 }
 
 function b64ToBytes(b64) {
@@ -1139,6 +1429,20 @@ function setNetworkStatus(label, tone) {
   const dot = $("networkDot");
   dot.className = "dot";
   if (tone) dot.classList.add(tone);
+
+  const system = $("systemState");
+  if (system) {
+    if (tone === "good") {
+      system.textContent = "live";
+      system.className = "state good";
+    } else if (tone === "bad") {
+      system.textContent = "alert";
+      system.className = "state bad";
+    } else {
+      system.textContent = "monitoring";
+      system.className = "state warn";
+    }
+  }
 }
 
 function loadCfgIntoInputs() {
@@ -1281,11 +1585,13 @@ function renderFeed() {
 
   $("feedMeta").textContent = `${events.length} recent actions`;
 
+  const seen = state.seenFeedHashes;
   box.innerHTML = events.map((e) => {
     const valueLine = e.valueAtto > 0n ? `<span class="value">${e.valueClaw} $CLAW</span>` : "no direct value transfer";
     const statusTone = e.status === "success" ? "good" : "bad";
+    const isFresh = Boolean(e.hash) && !seen.has(e.hash);
     return `
-      <div class="feed-item">
+      <div class="feed-item ${isFresh ? "fresh" : ""}">
         <div class="feed-head">
           <div class="feed-main">${escapeHtml(e.message)}</div>
           <div class="feed-tag ${statusTone}">${escapeHtml(e.status)}</div>
@@ -1295,6 +1601,14 @@ function renderFeed() {
       </div>
     `;
   }).join("");
+
+  for (const e of events) {
+    if (e.hash) seen.add(e.hash);
+  }
+
+  if (seen.size > 1600) {
+    state.seenFeedHashes = new Set(events.slice(0, 450).map((e) => e.hash).filter(Boolean));
+  }
 }
 
 function countByStatus(jobs) {
@@ -1409,22 +1723,22 @@ function computeMetrics() {
 }
 
 function renderOverview(metrics) {
-  $("mActiveJobs").textContent = String(metrics.activeJobs);
+  setMetricValue("mActiveJobs", String(metrics.activeJobs));
   $("mActiveJobsSub").textContent = `${metrics.open} open, ${metrics.negotiating} negotiating, ${metrics.filled} filled-in-progress`;
 
-  $("mActiveAgents").textContent = String(metrics.activeAgents);
-  $("mCompleted24h").textContent = String(metrics.completed24h);
-  $("mValue24h").textContent = `${attoToClaw(metrics.value24h)} $CLAW`;
+  setMetricValue("mActiveAgents", String(metrics.activeAgents));
+  setMetricValue("mCompleted24h", String(metrics.completed24h));
+  setMetricValue("mValue24h", `${attoToClaw(metrics.value24h)} $CLAW`);
 
-  $("mMedianCompletion").textContent = metrics.medianCycleHours === null ? "building history" : `${metrics.medianCycleHours.toFixed(1)}h`;
-  $("mSuccessRate").textContent = fmtPct(metrics.successRate);
-  $("mOpenFilled").textContent = metrics.openFilledRatio;
+  setMetricValue("mMedianCompletion", metrics.medianCycleHours === null ? "building history" : `${metrics.medianCycleHours.toFixed(1)}h`);
+  setMetricValue("mSuccessRate", fmtPct(metrics.successRate));
+  setMetricValue("mOpenFilled", metrics.openFilledRatio);
 
   if (metrics.reserved === null) {
-    $("mReserved").textContent = "waiting";
+    setMetricValue("mReserved", "waiting");
     $("mReservedSub").textContent = "Need both market IDs to read committed funds";
   } else {
-    $("mReserved").textContent = `${attoToClaw(metrics.reserved)} $CLAW`;
+    setMetricValue("mReserved", `${attoToClaw(metrics.reserved)} $CLAW`);
     $("mReservedSub").textContent = "Current reserved pool";
   }
 
@@ -1450,19 +1764,28 @@ function renderSparkline(txs) {
     return `${x.toFixed(2)},${y.toFixed(2)}`;
   }).join(" ");
 
-  $("activityLine").setAttribute("points", points);
+  const line = $("activityLine");
+  line.setAttribute("points", points);
+  try {
+    const len = line.getTotalLength();
+    line.style.strokeDasharray = `${len}`;
+    line.style.strokeDashoffset = `${len}`;
+    requestAnimationFrame(() => {
+      line.style.strokeDashoffset = "0";
+    });
+  } catch {}
 }
 
 function renderHealth(metrics) {
-  $("hFillRate").textContent = fmtPct(metrics.fillRate);
-  $("hAbandonRate").textContent = fmtPct(metrics.abandonmentRate);
-  $("hDisputeRate").textContent = fmtPct(metrics.disputeRate);
-  $("hFailureRate").textContent = fmtPct(metrics.failureRate);
+  setMetricValue("hFillRate", fmtPct(metrics.fillRate));
+  setMetricValue("hAbandonRate", fmtPct(metrics.abandonmentRate));
+  setMetricValue("hDisputeRate", fmtPct(metrics.disputeRate));
+  setMetricValue("hFailureRate", fmtPct(metrics.failureRate));
 
-  $("hFillBar").style.width = `${(metrics.fillRate * 100).toFixed(2)}%`;
-  $("hAbandonBar").style.width = `${(metrics.abandonmentRate * 100).toFixed(2)}%`;
-  $("hDisputeBar").style.width = `${(metrics.disputeRate * 100).toFixed(2)}%`;
-  $("hFailureBar").style.width = `${(metrics.failureRate * 100).toFixed(2)}%`;
+  setBarWidth("hFillBar", metrics.fillRate);
+  setBarWidth("hAbandonBar", metrics.abandonmentRate);
+  setBarWidth("hDisputeBar", metrics.disputeRate);
+  setBarWidth("hFailureBar", metrics.failureRate);
 
   renderPayoutDistribution(metrics.successful24h);
   renderInsights(metrics);
@@ -1491,7 +1814,7 @@ function renderPayoutDistribution(successfulTxs) {
 
   hist.innerHTML = counts.map((c, i) => {
     const h = Math.max(6, Math.round((c / top) * 100));
-    return `<div class="hist-bar" style="height:${h}px" title="bin ${i + 1}: ${c} payouts"></div>`;
+    return `<div class="hist-bar" style="height:${h}px;animation-delay:${i * 45}ms" title="bin ${i + 1}: ${c} payouts"></div>`;
   }).join("");
 }
 
@@ -1886,6 +2209,16 @@ function startTimer() {
   }, state.cfg.refreshSec * 1000);
 }
 
+function stageIntro() {
+  if (state.introDone) return;
+  const nodes = [...document.querySelectorAll(".app > header, .app > section, .app > div")];
+  nodes.forEach((node, idx) => {
+    node.style.setProperty("--delay", `${idx * 55}ms`);
+    node.classList.add("reveal-in");
+  });
+  state.introDone = true;
+}
+
 async function refreshAll() {
   readCfgFromInputs();
   hydrateCtas();
@@ -1927,7 +2260,14 @@ async function refreshAll() {
 
 function bindEvents() {
   $("settingsBtn").addEventListener("click", () => {
-    $("settingsPanel").classList.toggle("open");
+    const panel = $("settingsPanel");
+    panel.classList.toggle("open");
+    if (panel.classList.contains("open")) {
+      panel.classList.remove("reveal-in");
+      void panel.offsetWidth;
+      panel.style.setProperty("--delay", "0ms");
+      panel.classList.add("reveal-in");
+    }
   });
 
   $("refreshBtn").addEventListener("click", () => {
@@ -1989,6 +2329,7 @@ function init() {
   loadCfgIntoInputs();
   hydrateCtas();
   bindEvents();
+  stageIntro();
   startTimer();
   refreshAll().catch((err) => {
     setNetworkStatus(`waiting: ${String(err)}`, "warn");
