@@ -1,0 +1,1029 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.93.0",
+            "commitHash": "254b59607d4417e9dffbc307138ae5c86280fe4c",
+            "commitDate": "2026-01-19",
+            "channel": "Stable",
+            "short": "rustc 1.93.0 (254b59607 2026-01-19)"
+        },
+        "contractCrate": {
+            "name": "job-board-core",
+            "version": "0.1.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.54.6"
+        }
+    },
+    "name": "JobBoardCore",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "bond_registry",
+                "type": "Address"
+            },
+            {
+                "name": "uptime",
+                "type": "Address"
+            },
+            {
+                "name": "min_uptime_score",
+                "type": "u64"
+            },
+            {
+                "name": "max_counteroffers_per_application",
+                "type": "u64"
+            },
+            {
+                "name": "max_invites_per_job",
+                "type": "u64"
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "createJob",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "metadata_uri",
+                    "type": "bytes"
+                },
+                {
+                    "name": "visibility",
+                    "type": "JobVisibility"
+                },
+                {
+                    "name": "application_deadline_ts",
+                    "type": "u64"
+                },
+                {
+                    "name": "min_worker_uptime",
+                    "type": "u64"
+                },
+                {
+                    "name": "comp_mode_mask",
+                    "type": "u8"
+                },
+                {
+                    "name": "invited",
+                    "type": "variadic<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "apply",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "application_uri",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "proposeOffer",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "application_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "terms",
+                    "type": "OfferTermsInput"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "counterOffer",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "terms",
+                    "type": "OfferTermsInput"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "rejectOffer",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "withdrawOffer",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "acceptOffer",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "cancelJob",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "expireJob",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setMinUptimeScore",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setMaxCounteroffersPerApplication",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setMaxInvitesPerJob",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPaused",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "paused",
+                    "type": "bool"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setOwner",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "new_owner",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getJob",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Job>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getApplication",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "application_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Application>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOffer",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Offer>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getApplications",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "from",
+                    "type": "u64"
+                },
+                {
+                    "name": "size",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<Application>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getOffers",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "application_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "from",
+                    "type": "u64"
+                },
+                {
+                    "name": "size",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "variadic<Offer>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getAcceptedOffer",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<AcceptedOfferSummary>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "isInviteAllowed",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "addr",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "getBoardStats",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "BoardStats"
+                }
+            ]
+        },
+        {
+            "name": "getConfig",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "JobBoardConfig"
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "jobCreated",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "employer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "visibility",
+                    "type": "JobVisibility",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "applicationSubmitted",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "application_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "applicant",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "offerProposed",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "application_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "proposer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "parent_offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "offerRejected",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "by",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "offerWithdrawn",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "by",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "offerAccepted",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "accepter",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "jobClosed",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "closer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "close_reason",
+                    "type": "JobCloseReason",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "AcceptedOfferSummary": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "employer",
+                    "type": "Address"
+                },
+                {
+                    "name": "worker",
+                    "type": "Address"
+                },
+                {
+                    "name": "terms",
+                    "type": "OfferTerms"
+                },
+                {
+                    "name": "accepted_at",
+                    "type": "u64"
+                }
+            ]
+        },
+        "Application": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "applicant",
+                    "type": "Address"
+                },
+                {
+                    "name": "application_uri",
+                    "type": "bytes"
+                },
+                {
+                    "name": "created_at",
+                    "type": "u64"
+                }
+            ]
+        },
+        "BoardStats": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "total_jobs",
+                    "type": "u64"
+                },
+                {
+                    "name": "open_jobs",
+                    "type": "u64"
+                },
+                {
+                    "name": "matched_jobs",
+                    "type": "u64"
+                },
+                {
+                    "name": "total_applications",
+                    "type": "u64"
+                },
+                {
+                    "name": "total_offers",
+                    "type": "u64"
+                }
+            ]
+        },
+        "Job": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "employer",
+                    "type": "Address"
+                },
+                {
+                    "name": "metadata_uri",
+                    "type": "bytes"
+                },
+                {
+                    "name": "visibility",
+                    "type": "JobVisibility"
+                },
+                {
+                    "name": "application_deadline_ts",
+                    "type": "u64"
+                },
+                {
+                    "name": "min_worker_uptime",
+                    "type": "u64"
+                },
+                {
+                    "name": "comp_mode_mask",
+                    "type": "u8"
+                },
+                {
+                    "name": "status",
+                    "type": "JobStatus"
+                },
+                {
+                    "name": "created_at",
+                    "type": "u64"
+                },
+                {
+                    "name": "accepted_offer_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "application_count",
+                    "type": "u64"
+                }
+            ]
+        },
+        "JobBoardConfig": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "Address"
+                },
+                {
+                    "name": "bond_registry",
+                    "type": "Address"
+                },
+                {
+                    "name": "uptime",
+                    "type": "Address"
+                },
+                {
+                    "name": "min_uptime_score",
+                    "type": "u64"
+                },
+                {
+                    "name": "max_counteroffers_per_application",
+                    "type": "u64"
+                },
+                {
+                    "name": "max_invites_per_job",
+                    "type": "u64"
+                },
+                {
+                    "name": "paused",
+                    "type": "bool"
+                }
+            ]
+        },
+        "JobCloseReason": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Cancelled",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Expired",
+                    "discriminant": 1
+                }
+            ]
+        },
+        "JobStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Open",
+                    "discriminant": 0
+                },
+                {
+                    "name": "InNegotiation",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Matched",
+                    "discriminant": 2
+                },
+                {
+                    "name": "Closed",
+                    "discriminant": 3
+                },
+                {
+                    "name": "Expired",
+                    "discriminant": 4
+                }
+            ]
+        },
+        "JobVisibility": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Public",
+                    "discriminant": 1
+                },
+                {
+                    "name": "InviteOnly",
+                    "discriminant": 2
+                }
+            ]
+        },
+        "MilestoneSpec": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "due_ts",
+                    "type": "u64"
+                },
+                {
+                    "name": "review_timeout_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "metadata_uri",
+                    "type": "bytes"
+                }
+            ]
+        },
+        "Offer": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "application_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "proposer",
+                    "type": "Address"
+                },
+                {
+                    "name": "counterparty",
+                    "type": "Address"
+                },
+                {
+                    "name": "party",
+                    "type": "OfferParty"
+                },
+                {
+                    "name": "parent_offer_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "round_index",
+                    "type": "u64"
+                },
+                {
+                    "name": "terms",
+                    "type": "OfferTerms"
+                },
+                {
+                    "name": "status",
+                    "type": "OfferStatus"
+                },
+                {
+                    "name": "created_at",
+                    "type": "u64"
+                }
+            ]
+        },
+        "OfferParty": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Employer",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Worker",
+                    "discriminant": 1
+                }
+            ]
+        },
+        "OfferStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Proposed",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Countered",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Accepted",
+                    "discriminant": 2
+                },
+                {
+                    "name": "Rejected",
+                    "discriminant": 3
+                },
+                {
+                    "name": "Withdrawn",
+                    "discriminant": 4
+                }
+            ]
+        },
+        "OfferTerms": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "recurring",
+                    "type": "RecurringTerms"
+                },
+                {
+                    "name": "revenue_share",
+                    "type": "RevenueShareTerms"
+                },
+                {
+                    "name": "employer_bond_required",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "worker_bond_required",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "milestones",
+                    "type": "List<MilestoneSpec>"
+                },
+                {
+                    "name": "terms_uri",
+                    "type": "bytes"
+                }
+            ]
+        },
+        "OfferTermsInput": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "recurring",
+                    "type": "RecurringTerms"
+                },
+                {
+                    "name": "revenue_share",
+                    "type": "RevenueShareTerms"
+                },
+                {
+                    "name": "employer_bond_required",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "worker_bond_required",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "milestones",
+                    "type": "List<MilestoneSpec>"
+                },
+                {
+                    "name": "terms_uri",
+                    "type": "bytes"
+                }
+            ]
+        },
+        "RecurringTerms": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "amount_per_period",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "period_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "total_periods",
+                    "type": "u64"
+                }
+            ]
+        },
+        "RevenueShareTerms": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "profit_share_bps",
+                    "type": "u64"
+                }
+            ]
+        }
+    }
+}

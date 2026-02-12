@@ -1,0 +1,16 @@
+[package]
+name = "integration-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+multiversx-sc-scenario = { workspace = true }
+job-board-core = { path = "../job-board-core" }
+work-escrow = { path = "../work-escrow" }
+bond-registry-mock = { path = "../test-mocks/bond-registry-mock" }
+uptime-mock = { path = "../test-mocks/uptime-mock" }
+shared-types = { path = "../shared-types" }

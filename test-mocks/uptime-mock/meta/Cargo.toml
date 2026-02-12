@@ -1,0 +1,9 @@
+[package]
+name = "uptime-mock-meta"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+multiversx-sc-meta-lib = "0.54.0"
+uptime-mock = { path = ".." }

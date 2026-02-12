@@ -1,0 +1,1340 @@
+{
+    "buildInfo": {
+        "rustc": {
+            "version": "1.93.0",
+            "commitHash": "254b59607d4417e9dffbc307138ae5c86280fe4c",
+            "commitDate": "2026-01-19",
+            "channel": "Stable",
+            "short": "rustc 1.93.0 (254b59607 2026-01-19)"
+        },
+        "contractCrate": {
+            "name": "work-escrow",
+            "version": "0.1.0"
+        },
+        "framework": {
+            "name": "multiversx-sc",
+            "version": "0.54.6"
+        }
+    },
+    "name": "WorkEscrow",
+    "constructor": {
+        "inputs": [
+            {
+                "name": "job_board",
+                "type": "Address"
+            },
+            {
+                "name": "bond_registry",
+                "type": "Address"
+            },
+            {
+                "name": "uptime",
+                "type": "Address"
+            },
+            {
+                "name": "min_uptime_score",
+                "type": "u64"
+            },
+            {
+                "name": "treasury",
+                "type": "Address"
+            },
+            {
+                "name": "protocol_fee_bps",
+                "type": "u64"
+            },
+            {
+                "name": "referral_share_bps",
+                "type": "u64"
+            },
+            {
+                "name": "min_employer_bond",
+                "type": "BigUint"
+            },
+            {
+                "name": "min_worker_bond",
+                "type": "BigUint"
+            },
+            {
+                "name": "min_runway_periods",
+                "type": "u64"
+            },
+            {
+                "name": "default_notice_seconds",
+                "type": "u64"
+            },
+            {
+                "name": "termination_penalty_bps",
+                "type": "u64"
+            },
+            {
+                "name": "milestone_review_timeout_seconds",
+                "type": "u64"
+            },
+            {
+                "name": "max_milestones_per_agreement",
+                "type": "u64"
+            },
+            {
+                "name": "score_start",
+                "type": "u64"
+            }
+        ],
+        "outputs": []
+    },
+    "upgradeConstructor": {
+        "inputs": [],
+        "outputs": []
+    },
+    "endpoints": [
+        {
+            "name": "activateAgreement",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "referrer",
+                    "type": "optional<Address>",
+                    "multi_arg": true
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "fundEmployerRunway",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "fundWorkerBond",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "topUpRunway",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "claimRecurringPay",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "submitMilestone",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "proof_uri",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "approveMilestone",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "rejectMilestone",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "reason_uri",
+                    "type": "bytes"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "autoApproveMilestone",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "depositRevenue",
+            "mutability": "mutable",
+            "payableInTokens": [
+                "EGLD"
+            ],
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "requestTerminate",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "side",
+                    "type": "TerminationSide"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "finalizeTerminate",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "withdrawClaimable",
+            "mutability": "mutable",
+            "inputs": [],
+            "outputs": []
+        },
+        {
+            "name": "setProtocolFeeBps",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setReferralShareBps",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setTreasury",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "addr",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setMinUptimeScore",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "value",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setRiskParams",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "min_employer_bond",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_worker_bond",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_runway_periods",
+                    "type": "u64"
+                },
+                {
+                    "name": "default_notice_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "termination_penalty_bps",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_review_timeout_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "max_milestones_per_agreement",
+                    "type": "u64"
+                },
+                {
+                    "name": "score_start",
+                    "type": "u64"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setPaused",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "paused",
+                    "type": "bool"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "setOwner",
+            "mutability": "mutable",
+            "inputs": [
+                {
+                    "name": "new_owner",
+                    "type": "Address"
+                }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "getAgreement",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Agreement>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getAgreementFinancials",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "AgreementFinancials"
+                }
+            ]
+        },
+        {
+            "name": "getMilestone",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "optional<Milestone>",
+                    "multi_result": true
+                }
+            ]
+        },
+        {
+            "name": "getAgentReputation",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "agent",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "ReputationSnapshot"
+                }
+            ]
+        },
+        {
+            "name": "getProtocolStats",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "ProtocolStats"
+                }
+            ]
+        },
+        {
+            "name": "getConfig",
+            "mutability": "readonly",
+            "inputs": [],
+            "outputs": [
+                {
+                    "type": "EscrowConfig"
+                }
+            ]
+        },
+        {
+            "name": "getClaimable",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "agent",
+                    "type": "Address"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "BigUint"
+                }
+            ]
+        },
+        {
+            "name": "isOfferConsumed",
+            "mutability": "readonly",
+            "inputs": [
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                }
+            ],
+            "outputs": [
+                {
+                    "type": "bool"
+                }
+            ]
+        }
+    ],
+    "events": [
+        {
+            "identifier": "agreementActivated",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "job_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "employer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "worker",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "runwayFunded",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "employer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "runway_balance_after",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "workerBondFunded",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "worker",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "worker_bond_after",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "payClaimed",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "period_index",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "gross",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "fee",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "worker_net",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "milestoneSubmitted",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "worker",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "milestoneRejected",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "employer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "milestoneSettled",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "milestone_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "mode",
+                    "type": "u8",
+                    "indexed": true
+                },
+                {
+                    "name": "gross",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "fee",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "worker_net",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "revenueDeposited",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "payer",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "gross",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "worker_share",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "employer_share",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "fee_total",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "terminationRequested",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "side",
+                    "type": "u8",
+                    "indexed": true
+                },
+                {
+                    "name": "notice_end_ts",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "agreementTerminated",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "reason",
+                    "type": "u8",
+                    "indexed": true
+                },
+                {
+                    "name": "penalty",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "employer_refund",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "worker_refund",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "reputationChanged",
+            "inputs": [
+                {
+                    "name": "agent",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "prev_score",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "new_score",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "reason_code",
+                    "type": "u8",
+                    "indexed": true
+                },
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "feeWithdrawn",
+            "inputs": [
+                {
+                    "name": "account",
+                    "type": "Address",
+                    "indexed": true
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "identifier": "agreementDefaulted",
+            "inputs": [
+                {
+                    "name": "agreement_id",
+                    "type": "u64",
+                    "indexed": true
+                },
+                {
+                    "name": "side_at_fault",
+                    "type": "u8",
+                    "indexed": true
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        }
+    ],
+    "esdtAttributes": [],
+    "hasCallback": false,
+    "types": {
+        "Agreement": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "job_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "offer_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "employer",
+                    "type": "Address"
+                },
+                {
+                    "name": "worker",
+                    "type": "Address"
+                },
+                {
+                    "name": "referrer",
+                    "type": "Address"
+                },
+                {
+                    "name": "status",
+                    "type": "AgreementStatus"
+                },
+                {
+                    "name": "created_at",
+                    "type": "u64"
+                },
+                {
+                    "name": "activated_at",
+                    "type": "u64"
+                },
+                {
+                    "name": "notice_start_ts",
+                    "type": "u64"
+                },
+                {
+                    "name": "notice_end_ts",
+                    "type": "u64"
+                },
+                {
+                    "name": "requested_by_side",
+                    "type": "u8"
+                },
+                {
+                    "name": "default_side",
+                    "type": "u8"
+                },
+                {
+                    "name": "terms",
+                    "type": "AgreementTerms"
+                }
+            ]
+        },
+        "AgreementFinancials": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "funding",
+                    "type": "FundingState"
+                },
+                {
+                    "name": "worker_claimable",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "employer_claimable",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "referrer_claimable",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "treasury_claimable",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "total_gross_paid",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "total_fees_paid",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        "AgreementStatus": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "PendingFunding",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Active",
+                    "discriminant": 1
+                },
+                {
+                    "name": "NoticePeriod",
+                    "discriminant": 2
+                },
+                {
+                    "name": "Terminated",
+                    "discriminant": 3
+                },
+                {
+                    "name": "Completed",
+                    "discriminant": 4
+                }
+            ]
+        },
+        "AgreementTerms": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "recurring",
+                    "type": "RecurringTermsEscrow"
+                },
+                {
+                    "name": "revenue_share",
+                    "type": "RevenueShareTermsEscrow"
+                },
+                {
+                    "name": "employer_bond_required",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "worker_bond_required",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "milestone_count",
+                    "type": "u64"
+                }
+            ]
+        },
+        "EscrowConfig": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "owner",
+                    "type": "Address"
+                },
+                {
+                    "name": "job_board",
+                    "type": "Address"
+                },
+                {
+                    "name": "bond_registry",
+                    "type": "Address"
+                },
+                {
+                    "name": "uptime",
+                    "type": "Address"
+                },
+                {
+                    "name": "treasury",
+                    "type": "Address"
+                },
+                {
+                    "name": "min_uptime_score",
+                    "type": "u64"
+                },
+                {
+                    "name": "protocol_fee_bps",
+                    "type": "u64"
+                },
+                {
+                    "name": "referral_share_bps",
+                    "type": "u64"
+                },
+                {
+                    "name": "min_employer_bond",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_worker_bond",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "min_runway_periods",
+                    "type": "u64"
+                },
+                {
+                    "name": "default_notice_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "termination_penalty_bps",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestone_review_timeout_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "max_milestones_per_agreement",
+                    "type": "u64"
+                },
+                {
+                    "name": "score_start",
+                    "type": "u64"
+                },
+                {
+                    "name": "paused",
+                    "type": "bool"
+                }
+            ]
+        },
+        "FundingState": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "runway_balance",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "employer_bond_locked",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "worker_bond_locked",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "reserved_recurring_minimum",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        "Milestone": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "u64"
+                },
+                {
+                    "name": "agreement_id",
+                    "type": "u64"
+                },
+                {
+                    "name": "amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "due_ts",
+                    "type": "u64"
+                },
+                {
+                    "name": "review_timeout_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "metadata_uri",
+                    "type": "bytes"
+                },
+                {
+                    "name": "state",
+                    "type": "MilestoneState"
+                },
+                {
+                    "name": "submitted_at",
+                    "type": "u64"
+                },
+                {
+                    "name": "review_deadline",
+                    "type": "u64"
+                },
+                {
+                    "name": "proof_uri",
+                    "type": "bytes"
+                },
+                {
+                    "name": "reason_uri",
+                    "type": "bytes"
+                },
+                {
+                    "name": "settlement_mode",
+                    "type": "u8"
+                },
+                {
+                    "name": "paid_at",
+                    "type": "u64"
+                }
+            ]
+        },
+        "MilestoneState": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Open",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Submitted",
+                    "discriminant": 1
+                },
+                {
+                    "name": "Rejected",
+                    "discriminant": 2
+                },
+                {
+                    "name": "Paid",
+                    "discriminant": 3
+                }
+            ]
+        },
+        "ProtocolStats": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "total_agreements",
+                    "type": "u64"
+                },
+                {
+                    "name": "active_agreements",
+                    "type": "u64"
+                },
+                {
+                    "name": "completed_agreements",
+                    "type": "u64"
+                },
+                {
+                    "name": "terminated_agreements",
+                    "type": "u64"
+                },
+                {
+                    "name": "total_gross_payouts",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "total_protocol_fees",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "total_revenue_deposited",
+                    "type": "BigUint"
+                }
+            ]
+        },
+        "RecurringTermsEscrow": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "amount_per_period",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "period_seconds",
+                    "type": "u64"
+                },
+                {
+                    "name": "total_periods",
+                    "type": "u64"
+                },
+                {
+                    "name": "paid_periods",
+                    "type": "u64"
+                },
+                {
+                    "name": "next_pay_ts",
+                    "type": "u64"
+                }
+            ]
+        },
+        "ReputationSnapshot": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "score",
+                    "type": "u64"
+                },
+                {
+                    "name": "agreements_started",
+                    "type": "u64"
+                },
+                {
+                    "name": "agreements_completed",
+                    "type": "u64"
+                },
+                {
+                    "name": "defaults_as_employer",
+                    "type": "u64"
+                },
+                {
+                    "name": "defaults_as_worker",
+                    "type": "u64"
+                },
+                {
+                    "name": "on_time_recurring_payments",
+                    "type": "u64"
+                },
+                {
+                    "name": "milestones_settled",
+                    "type": "u64"
+                },
+                {
+                    "name": "terminations_initiated",
+                    "type": "u64"
+                },
+                {
+                    "name": "last_updated_ts",
+                    "type": "u64"
+                }
+            ]
+        },
+        "RevenueShareTermsEscrow": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "profit_share_bps",
+                    "type": "u64"
+                },
+                {
+                    "name": "protocol_fee_bps_snapshot",
+                    "type": "u64"
+                },
+                {
+                    "name": "referral_share_bps_snapshot",
+                    "type": "u64"
+                }
+            ]
+        },
+        "TerminationSide": {
+            "type": "enum",
+            "variants": [
+                {
+                    "name": "Employer",
+                    "discriminant": 0
+                },
+                {
+                    "name": "Worker",
+                    "discriminant": 1
+                }
+            ]
+        }
+    }
+}

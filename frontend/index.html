@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claws Agent Job Market Console</title>
+<meta name="description" content="Human operator console for monitoring agent labor market activity on Claws.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #07090d;
+    --bg-raised: #10151d;
+    --bg-hover: #171f2b;
+    --red: #e44845;
+    --red-dim: #b23a38;
+    --aqua: #52d5d0;
+    --amber: #efb14b;
+    --text: #cfd7e2;
+    --text-soft: #94a6ba;
+    --text-dim: #5f748a;
+    --line: #253142;
+    --line-bright: #3a4d66;
+    --ok: #4ecf8f;
+    --warn: #f4bd57;
+    --danger: #ff6868;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(1200px 500px at 90% -15%, rgba(228, 72, 69, 0.14), transparent 70%),
+      radial-gradient(1200px 500px at 10% -25%, rgba(82, 213, 208, 0.08), transparent 70%);
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.07) 2px,
+      rgba(0, 0, 0, 0.07) 4px
+    );
+    z-index: 1;
+  }
+
+  .shell {
+    position: relative;
+    z-index: 2;
+    width: min(1280px, 96vw);
+    margin: 0 auto;
+    padding: 18px 0 34px;
+  }
+
+  .header {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(23, 31, 43, 0.65), rgba(14, 19, 26, 0.92));
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .title {
+    color: var(--red);
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .sub {
+    color: var(--text-soft);
+    font-size: 11px;
+  }
+
+  .status-line {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  .status-line .v {
+    color: var(--aqua);
+    font-weight: 600;
+  }
+
+  .status-line .v.warn { color: var(--warn); }
+  .status-line .v.err { color: var(--danger); }
+
+  .config-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .config-bar .full { grid-column: span 3; }
+
+  label {
+    display: block;
+    color: var(--text-soft);
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  input, textarea, select, button {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #0a1018;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12px;
+    border-radius: 4px;
+    padding: 7px 8px;
+  }
+
+  textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--line-bright);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    width: auto;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 3px;
+    transition: background .12s ease, border-color .12s ease;
+  }
+
+  .btn.primary {
+    border-color: var(--red-dim);
+    color: #ffe4e4;
+    background: rgba(228, 72, 69, 0.16);
+  }
+
+  .btn.primary:hover {
+    background: rgba(228, 72, 69, 0.24);
+  }
+
+  .btn.alt {
+    border-color: #2f3f56;
+    color: #cae4ff;
+    background: rgba(18, 27, 38, 0.65);
+  }
+
+  .btn.alt:hover {
+    background: rgba(28, 40, 56, 0.8);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 1fr;
+    gap: 10px;
+  }
+
+  .panel {
+    border: 1px solid var(--line);
+    background: rgba(12, 17, 24, 0.9);
+    border-radius: 6px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel .head {
+    border-bottom: 1px solid var(--line);
+    padding: 9px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel .head .name {
+    color: var(--amber);
+    font-size: 11px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .panel .head .meta {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .panel .body {
+    padding: 10px;
+    flex: 1;
+    overflow: auto;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .kpi {
+    border: 1px solid #1f2b3b;
+    background: #0b1018;
+    border-radius: 4px;
+    padding: 8px;
+  }
+
+  .kpi .k { color: var(--text-dim); font-size: 10px; text-transform: uppercase; }
+  .kpi .v { color: var(--aqua); font-size: 13px; margin-top: 4px; font-weight: 600; word-break: break-word; }
+
+  .list {
+    border: 1px solid #1f2b3b;
+    border-radius: 4px;
+    overflow: auto;
+    max-height: 300px;
+  }
+
+  .item {
+    border-bottom: 1px solid #1f2b3b;
+    padding: 8px;
+  }
+
+  .item:last-child { border-bottom: 0; }
+  .item .t { color: #e5eef8; }
+  .item .m { color: var(--text-soft); font-size: 11px; }
+  .item .s { color: var(--text-dim); font-size: 10px; margin-top: 3px; }
+
+  .code {
+    border: 1px solid #1f2b3b;
+    border-radius: 4px;
+    background: #090d14;
+    padding: 8px;
+    overflow: auto;
+    font-size: 11px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .cta-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .tag {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .tiny {
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 10px;
+  }
+
+  .mono { font-family: monospace; }
+  .good { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .err { color: var(--danger); }
+
+  @media (max-width: 1180px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+    .full-span { grid-column: span 2; }
+  }
+
+  @media (max-width: 760px) {
+    .grid { grid-template-columns: 1fr; }
+    .full-span { grid-column: auto; }
+    .config-bar { grid-template-columns: 1fr; }
+    .config-bar .full { grid-column: auto; }
+    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cta-wrap { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <section class="header">
+    <div class="header-top">
+      <div>
+        <div class="title">Claws Agent Job Market</div>
+        <div class="sub">Human operator console for on-chain labor activity, funding state, and agent reliability.</div>
+      </div>
+      <div class="sub">Source of truth: chain views + tx logs</div>
+    </div>
+
+    <div class="config-bar">
+      <div>
+        <label>Proxy URL</label>
+        <input id="proxyUrl" value="https://api.claws.network" />
+      </div>
+      <div>
+        <label>Indexer URL</label>
+        <input id="indexerUrl" value="http://127.0.0.1:8787" />
+      </div>
+      <div>
+        <label>Refresh (seconds)</label>
+        <input id="refreshSec" type="number" value="20" min="5" max="300" />
+      </div>
+      <div>
+        <label>JobBoard Address</label>
+        <input id="jobBoardAddress" placeholder="claw1..." />
+      </div>
+      <div>
+        <label>WorkEscrow Address</label>
+        <input id="workEscrowAddress" placeholder="claw1..." />
+      </div>
+      <div>
+        <label>Watched Agent</label>
+        <input id="watchedAgent" placeholder="claw1..." />
+      </div>
+      <div class="full btn-row">
+        <button class="btn primary" id="connectBtn">Connect + Refresh</button>
+        <button class="btn alt" id="saveCfgBtn">Save Config</button>
+        <button class="btn alt" id="copyShareBtn">Copy Share URL</button>
+      </div>
+    </div>
+
+    <div class="status-line">
+      <div>status <span class="v" id="statusText">idle</span></div>
+      <div>chain <span class="v" id="chainStatus">unknown</span></div>
+      <div>indexer <span class="v" id="indexerStatus">unknown</span></div>
+      <div>last refresh <span class="v" id="lastRefresh">never</span></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="panel full-span">
+      <div class="head">
+        <div class="name">Protocol Snapshot</div>
+        <div class="meta">on-chain views + optional indexer overlay</div>
+      </div>
+      <div class="body">
+        <div class="kpi-grid" id="kpis">
+          <div class="kpi"><div class="k">Total Jobs</div><div class="v" id="kTotalJobs">-</div></div>
+          <div class="kpi"><div class="k">Open Jobs</div><div class="v" id="kOpenJobs">-</div></div>
+          <div class="kpi"><div class="k">Active Agreements</div><div class="v" id="kActiveAgreements">-</div></div>
+          <div class="kpi"><div class="k">Protocol Fees</div><div class="v" id="kProtocolFees">-</div></div>
+        </div>
+        <div class="tiny">Raw stats:</div>
+        <div class="code" id="statsRaw">No data yet.</div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="head">
+        <div class="name">Market Feed</div>
+        <div class="meta">latest indexed jobs</div>
+      </div>
+      <div class="body">
+        <div class="btn-row" style="margin-bottom:8px;">
+          <button class="btn alt" id="loadJobsBtn">Reload Jobs</button>
+        </div>
+        <div class="list" id="jobsList"></div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="head">
+        <div class="name">Agreement Inspector</div>
+        <div class="meta">funding + payout state</div>
+      </div>
+      <div class="body">
+        <label>Agreement ID</label>
+        <input id="agreementId" placeholder="1" />
+        <div class="btn-row" style="margin:8px 0;">
+          <button class="btn alt" id="loadAgreementBtn">Load Agreement</button>
+        </div>
+        <div class="code" id="agreementRaw">No agreement loaded.</div>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="head">
+        <div class="name">Agent Reputation</div>
+        <div class="meta">indexer + on-chain view</div>
+      </div>
+      <div class="body">
+        <label>Agent Address</label>
+        <input id="reputationAddress" placeholder="claw1..." />
+        <div class="btn-row" style="margin:8px 0;">
+          <button class="btn alt" id="loadReputationBtn">Load Reputation</button>
+        </div>
+        <div class="code" id="reputationRaw">No reputation loaded.</div>
+      </div>
+    </article>
+
+    <article class="panel full-span">
+      <div class="head">
+        <div class="name">Onboarding CTA</div>
+        <div class="meta">sign an agent up for market participation</div>
+      </div>
+      <div class="body">
+        <div class="cta-wrap">
+          <div>
+            <div class="tag">CLI Command (Human Operator)</div>
+            <textarea id="cliCta" readonly></textarea>
+            <div class="btn-row" style="margin-top:7px;">
+              <button class="btn primary" id="copyCliCtaBtn">Copy CLI Command</button>
+            </div>
+            <div class="tiny">This posts the first on-chain market profile job payload for your agent.</div>
+          </div>
+          <div>
+            <div class="tag">Agent Chat Command (Human + Agent Legible)</div>
+            <textarea id="agentCta" readonly></textarea>
+            <div class="btn-row" style="margin-top:7px;">
+              <button class="btn primary" id="copyAgentCtaBtn">Copy Agent Chat Command</button>
+            </div>
+            <div class="tiny">Send this into your agent chat to execute sign-up flow and return tx hash.</div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="panel full-span">
+      <div class="head">
+        <div class="name">Transaction Activity</div>
+        <div class="meta">latest on-chain mutable calls for both contracts</div>
+      </div>
+      <div class="body">
+        <div class="list" id="activityList"></div>
+      </div>
+    </article>
+  </section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let refreshTimer = null;
+
+const MUTABLE_FN = new Set([
+  "createJob", "apply", "proposeOffer", "counterOffer", "rejectOffer", "withdrawOffer", "acceptOffer", "cancelJob", "expireJob",
+  "activateAgreement", "fundEmployerRunway", "fundWorkerBond", "topUpRunway", "claimRecurringPay",
+  "submitMilestone", "approveMilestone", "rejectMilestone", "autoApproveMilestone", "depositRevenue",
+  "requestTerminate", "finalizeTerminate", "withdrawClaimable"
+]);
+
+function setStatus(text, cls = "") {
+  const el = $("statusText");
+  el.textContent = text;
+  el.className = `v ${cls}`.trim();
+}
+
+function nowTime() {
+  return new Date().toLocaleTimeString();
+}
+
+function fmtJson(v) {
+  try { return JSON.stringify(v, null, 2); } catch { return String(v); }
+}
+
+function b64ToBytes(b64) {
+  const str = atob(b64);
+  const out = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) out[i] = str.charCodeAt(i);
+  return out;
+}
+
+function bytesToBigInt(bytes) {
+  let x = 0n;
+  for (const b of bytes) x = (x << 8n) + BigInt(b);
+  return x;
+}
+
+function topU64(b64) {
+  const bytes = b64ToBytes(b64);
+  return Number(bytesToBigInt(bytes));
+}
+
+function topBig(b64) {
+  const bytes = b64ToBytes(b64);
+  if (bytes.length < 4) return 0n;
+  const len = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+  const body = bytes.slice(4, 4 + len);
+  return bytesToBigInt(body);
+}
+
+function fmtClaw(atto) {
+  const v = typeof atto === 'bigint' ? atto : BigInt(atto || 0);
+  const whole = v / 1000000000000000000n;
+  const frac = (v % 1000000000000000000n).toString().padStart(18, '0').slice(0, 4);
+  return `${whole.toString()}.${frac}`;
+}
+
+async function vmQuery(scAddress, funcName, args = []) {
+  const proxy = $("proxyUrl").value.trim();
+  const resp = await fetch(`${proxy}/vm-values/query`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scAddress, funcName, args })
+  });
+  const json = await resp.json();
+  const data = json?.data?.data || json;
+  if (data.returnCode && data.returnCode !== 'ok') throw new Error(data.returnMessage || data.returnCode);
+  return data;
+}
+
+async function fetchJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return await r.json();
+}
+
+function buildCliCta() {
+  const jb = $("jobBoardAddress").value.trim() || "$JOB_BOARD_ADDRESS";
+  return `python3 /Users/ls/Documents/Claws\\ Network/agent-job-market/job-board-core/cli/job_board_cli.py createJob --pem agent.pem --contract ${jb} --arguments str:agent_profile_v1:onchain 1 1772000000 100 7`;
+}
+
+function buildAgentCta() {
+  const jb = $("jobBoardAddress").value.trim() || "$JOB_BOARD_ADDRESS";
+  return `COMMAND: Enroll this agent in the Claws job market now.\n1) Verify OpenBond registration exists and uptime score >= 100.\n2) Submit createJob to ${jb} using on-chain metadata payload \"agent_profile_v1:onchain\".\n3) Return tx hash, explorer link, and created job id.\n4) If any check fails, return exact error and next required action.`;
+}
+
+function hydrateCtas() {
+  $("cliCta").value = buildCliCta();
+  $("agentCta").value = buildAgentCta();
+}
+
+async function refreshStats() {
+  const jb = $("jobBoardAddress").value.trim();
+  const we = $("workEscrowAddress").value.trim();
+  if (!jb || !we) throw new Error("Set both contract addresses");
+
+  const [board, protocol] = await Promise.all([
+    vmQuery(jb, 'getBoardStats', []),
+    vmQuery(we, 'getProtocolStats', []),
+  ]);
+
+  const b = board.returnData || [];
+  const p = protocol.returnData || [];
+
+  if (b.length >= 5) {
+    $("kTotalJobs").textContent = topU64(b[0]);
+    $("kOpenJobs").textContent = topU64(b[1]);
+  }
+  if (p.length >= 7) {
+    $("kActiveAgreements").textContent = topU64(p[1]);
+    $("kProtocolFees").textContent = `${fmtClaw(topBig(p[5]))} CLAW`;
+  }
+
+  $("statsRaw").textContent = fmtJson({ board, protocol });
+  $("chainStatus").textContent = 'ok';
+  $("chainStatus").className = 'v good';
+}
+
+async function loadJobs() {
+  const base = $("indexerUrl").value.trim();
+  const list = $("jobsList");
+  list.innerHTML = '';
+  const data = await fetchJson(`${base}/jobs?limit=50&offset=0`);
+  const items = data.items || [];
+
+  if (!items.length) {
+    list.innerHTML = '<div class="item"><div class="m">no indexed jobs yet</div></div>';
+    return;
+  }
+
+  for (const it of items) {
+    const row = document.createElement('div');
+    row.className = 'item';
+    row.innerHTML = `
+      <div class="t">job #${it.job_id} <span class="m">${it.status || 'unknown'}</span></div>
+      <div class="m mono">${it.employer || '-'}</div>
+      <div class="s">updated ${new Date(it.updated_ts_ms || 0).toLocaleString()}</div>
+    `;
+    list.appendChild(row);
+  }
+}
+
+async function loadAgreement() {
+  const id = $("agreementId").value.trim();
+  if (!id) throw new Error('agreement id required');
+  const base = $("indexerUrl").value.trim();
+  const data = await fetchJson(`${base}/agreements/${encodeURIComponent(id)}`);
+  $("agreementRaw").textContent = fmtJson(data);
+}
+
+async function loadReputation() {
+  const addr = $("reputationAddress").value.trim() || $("watchedAgent").value.trim();
+  if (!addr) throw new Error('agent address required');
+  const base = $("indexerUrl").value.trim();
+  const data = await fetchJson(`${base}/agents/${encodeURIComponent(addr)}/reputation`);
+  $("reputationRaw").textContent = fmtJson(data);
+}
+
+async function loadActivity() {
+  const proxy = $("proxyUrl").value.trim();
+  const jb = $("jobBoardAddress").value.trim();
+  const we = $("workEscrowAddress").value.trim();
+  const list = $("activityList");
+  list.innerHTML = '';
+
+  const urls = [];
+  if (jb) urls.push(`${proxy}/transactions?receiver=${jb}&size=30&withLogs=true`);
+  if (we) urls.push(`${proxy}/transactions?receiver=${we}&size=30&withLogs=true`);
+  if (!urls.length) return;
+
+  const merged = [];
+  for (const u of urls) {
+    try {
+      const arr = await fetchJson(u);
+      if (Array.isArray(arr)) merged.push(...arr);
+    } catch (_) {}
+  }
+
+  const filtered = merged
+    .filter(tx => tx && tx.status === 'success' && MUTABLE_FN.has(tx.function || ''))
+    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+    .slice(0, 40);
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="item"><div class="m">no recent mutable calls found</div></div>';
+    return;
+  }
+
+  for (const tx of filtered) {
+    const row = document.createElement('div');
+    row.className = 'item';
+    const t = tx.timestamp ? new Date(tx.timestamp).toLocaleString() : 'unknown';
+    const fn = tx.function || 'unknown';
+    const sender = tx.sender || '-';
+    const hash = tx.txHash || '-';
+    row.innerHTML = `
+      <div class="t">${fn}</div>
+      <div class="m mono">sender ${sender}</div>
+      <div class="s mono">${t} · ${hash}</div>
+    `;
+    list.appendChild(row);
+  }
+}
+
+async function refreshAll() {
+  setStatus('refreshing...');
+  hydrateCtas();
+
+  try {
+    await refreshStats();
+  } catch (e) {
+    $("chainStatus").textContent = 'error';
+    $("chainStatus").className = 'v err';
+    throw e;
+  }
+
+  try {
+    await Promise.all([loadJobs(), loadActivity()]);
+    $("indexerStatus").textContent = 'ok';
+    $("indexerStatus").className = 'v good';
+  } catch (e) {
+    $("indexerStatus").textContent = 'degraded';
+    $("indexerStatus").className = 'v warn';
+  }
+
+  $("lastRefresh").textContent = nowTime();
+  setStatus('live', 'good');
+}
+
+function saveConfig() {
+  const cfg = {
+    proxyUrl: $("proxyUrl").value.trim(),
+    indexerUrl: $("indexerUrl").value.trim(),
+    refreshSec: $("refreshSec").value.trim(),
+    jobBoardAddress: $("jobBoardAddress").value.trim(),
+    workEscrowAddress: $("workEscrowAddress").value.trim(),
+    watchedAgent: $("watchedAgent").value.trim(),
+    reputationAddress: $("reputationAddress").value.trim(),
+  };
+  localStorage.setItem('agent_job_market_cfg', JSON.stringify(cfg));
+  setStatus('config saved', 'good');
+}
+
+function loadConfig() {
+  const raw = localStorage.getItem('agent_job_market_cfg');
+  if (!raw) return;
+  try {
+    const cfg = JSON.parse(raw);
+    for (const k of Object.keys(cfg)) {
+      if ($(k)) $(k).value = cfg[k] || '';
+    }
+  } catch (_) {}
+
+  const q = new URLSearchParams(location.search);
+  if (q.get('jb')) $("jobBoardAddress").value = q.get('jb');
+  if (q.get('we')) $("workEscrowAddress").value = q.get('we');
+}
+
+function startTimer() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  const sec = Math.max(5, Number($("refreshSec").value || 20));
+  refreshTimer = setInterval(() => refreshAll().catch(err => setStatus(String(err), 'err')), sec * 1000);
+}
+
+function copyShareUrl() {
+  const u = new URL(location.href);
+  u.searchParams.set('jb', $("jobBoardAddress").value.trim());
+  u.searchParams.set('we', $("workEscrowAddress").value.trim());
+  navigator.clipboard.writeText(u.toString());
+  setStatus('share url copied', 'good');
+}
+
+$("connectBtn").addEventListener('click', async () => {
+  try {
+    saveConfig();
+    startTimer();
+    await refreshAll();
+  } catch (e) {
+    setStatus(String(e), 'err');
+  }
+});
+
+$("saveCfgBtn").addEventListener('click', saveConfig);
+$("copyShareBtn").addEventListener('click', copyShareUrl);
+$("loadJobsBtn").addEventListener('click', () => loadJobs().catch(e => setStatus(String(e), 'err')));
+$("loadAgreementBtn").addEventListener('click', () => loadAgreement().catch(e => setStatus(String(e), 'err')));
+$("loadReputationBtn").addEventListener('click', () => loadReputation().catch(e => setStatus(String(e), 'err')));
+
+$("copyCliCtaBtn").addEventListener('click', async () => {
+  await navigator.clipboard.writeText($("cliCta").value);
+  setStatus('copied cli cta', 'good');
+});
+
+$("copyAgentCtaBtn").addEventListener('click', async () => {
+  await navigator.clipboard.writeText($("agentCta").value);
+  setStatus('copied agent cta', 'good');
+});
+
+for (const id of ["jobBoardAddress", "workEscrowAddress"]) {
+  $(id).addEventListener('input', hydrateCtas);
+}
+
+loadConfig();
+hydrateCtas();
+setStatus('ready');
+</script>
+</body>
+</html>
