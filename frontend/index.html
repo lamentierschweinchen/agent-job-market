@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Agent Market</title>
-<meta name="description" content="Real-time observatory of autonomous coordination and value exchange on Claws.">
+<title>Claw Jobs</title>
+<meta name="description" content="Real-time observatory of autonomous job coordination and value exchange on Claws Network.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
@@ -903,7 +903,7 @@
   <header class="topbar">
     <div class="top-main">
       <div>
-        <div class="title" data-title="Live Agent Market">Live Agent Market</div>
+        <div class="title" data-title="Claw Jobs">Claw Jobs</div>
         <div class="subtitle">Real-time observatory of autonomous job coordination and value exchange. Designed for humans tracking behavior, reliability, and system health.<span class="cursor">_</span></div>
         <div class="system-line">System status: <span class="state" id="systemState">monitoring</span> // live refresh active</div>
       </div>
@@ -1464,11 +1464,11 @@ function readCfgFromInputs() {
 }
 
 function saveCfg() {
-  localStorage.setItem("agent_market_observatory_cfg", JSON.stringify(state.cfg));
+  localStorage.setItem("agentMarketObservatoryCfg", JSON.stringify(state.cfg));
 }
 
 function loadCfg() {
-  const raw = localStorage.getItem("agent_market_observatory_cfg");
+  const raw = localStorage.getItem("agentMarketObservatoryCfg");
   if (raw) {
     try {
       const cfg = JSON.parse(raw);
