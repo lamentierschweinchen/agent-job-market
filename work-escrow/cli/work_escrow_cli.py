@@ -73,7 +73,6 @@ def call_endpoint(endpoint: str, pem: str, args: list[str], value: str | None, g
         str(gas_limit),
         "--gas-price",
         str(GAS_PRICE),
-        "--recall-nonce",
         "--pem",
         pem,
         "--chain",
